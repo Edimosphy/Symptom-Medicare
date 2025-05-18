@@ -139,6 +139,3 @@ st.sidebar.info("""
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
 **Built with:** Streamlit + Naive Bayes  
-
-# --- Deployment Note ---
-st.sidebar.markdown("👨‍⚕️ Built for Streamlit Deployment")
