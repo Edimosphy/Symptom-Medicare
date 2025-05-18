@@ -13,9 +13,14 @@ st.markdown("""
     <style>
         .stApp {
             background-color: #e3f2fd;
+            font-size: 18px; /* Base font size for better readability */
         }
         h1, h2, h3, h4 {
             color: #0d47a1;
+            font-size: 24px !important;
+        }
+        label, .stSelectbox, .stTextInput, .stForm, .stButton {
+            font-size: 18px !important; /* Improve dropdown and input visibility */
         }
         .stSelectbox, .stTextInput, .stForm {
             background-color: #ffffff;
@@ -28,7 +33,7 @@ st.markdown("""
             color: white;
             border-radius: 10px;
             padding: 10px 16px;
-            font-size: 16px;
+            font-size: 18px !important;
         }
         .stButton>button:hover {
             background-color: #0d47a1;
@@ -39,10 +44,26 @@ st.markdown("""
         }
         .markdown-text-container p {
             color: #0f3057;
-            font-size: 16px;
+            font-size: 18px !important;
+        }
+
+        /* Ensure form elements are responsive */
+        .css-1kyxreq, .css-1cpxqw2 {
+            font-size: 18px !important;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Improve contrast for visibility */
+        .css-10trblm {
+            color: #0d47a1 !important;
         }
     </style>
 """, unsafe_allow_html=True)
+
+             
 
 # --- Sample Data ---
 data = {
