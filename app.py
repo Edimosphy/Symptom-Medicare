@@ -17,7 +17,7 @@ st.markdown("""
         }
 
         h1, h2, h3, h4 {
-            color: white !important;
+            color: black !important;
             font-size: 24px !important;
         }
 
@@ -30,7 +30,7 @@ st.markdown("""
         .markdown-text-container p,
         .stMarkdown p,
         .stMarkdown span {
-            color: white !important;
+            color: black !important;
             font-size: 18px !important;
         }
 
