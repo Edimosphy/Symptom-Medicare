@@ -9,35 +9,35 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
 
 st.markdown("""
-    <style>
-        .stApp {
-            background-color: #f5faff;
-            font-size: 18px;
-        }
+<style>
+    .stApp {
+        background-color: #ffffff;
+        color: #111 !important;
+    }
 
-        h1, h3 {
-            color: #0d47a1;
-        }
+    h1, h2, h3, .stMarkdown p {
+        color: #111 !important;
+    }
 
-        label, .stSelectbox label {
-            font-weight: 600;
-            color: #222;
-        }
+    .stButton > button {
+        background-color: #1976d2;
+        color: white;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 16px;
+    }
 
-        .stButton > button {
-            background-color: #2196f3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
+    .stButton > button:hover {
+        background-color: #125aa0;
+    }
 
-        .stButton > button:hover {
-            background-color: #1976d2;
-        }
-    </style>
+    div[data-baseweb="select"] > div {
+        background-color: white !important;
+        color: black !important;
+    }
+</style>
 """, unsafe_allow_html=True)
+
 
 
          
