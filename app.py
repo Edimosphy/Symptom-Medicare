@@ -127,14 +127,16 @@ symptom_option_mapping = {
     'Lymph Node Swelling': ['High', 'Yes', 'No']
 }
 
-# --- User Input Form ---
 user_symptoms = {}
+
 with st.form("symptom_form"):
     st.markdown("### 📝 Please select your symptom levels below:")
 
     for symptom, options in symptom_option_mapping.items():
-        question = f"{symptom}"
-        user_symptoms[symptom] = st.selectbox(question, options, key=symptom)
+        # Custom visible label
+        st.markdown(f"<label style='font-weight: 600; color: #000;'>{symptom}</label>", unsafe_allow_html=True)
+        # Blank label in the selectbox so only the styled markdown shows
+        user_symptoms[symptom] = st.selectbox("", options, key=symptom)
 
     submitted = st.form_submit_button("🧪 Predict Disease")
     
