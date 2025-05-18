@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
 
 # --- Custom CSS Styling ---
- st.markdown("""
+st.markdown("""
     <style>
         .stApp {
             background-color: #e3f2fd;
