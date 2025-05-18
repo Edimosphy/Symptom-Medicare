@@ -111,7 +111,7 @@ with st.form("symptom_form"):
 
     for symptom, options in symptom_option_mapping.items():
         # Custom visible label
-        st.markdown(f"<label style='font-weight: 600; color: #000;'>{symptom}</label>", unsafe_allow_html=True)
+        #st.markdown(f"<label style='font-weight: 600; color: #000;'>{symptom}</label>", unsafe_allow_html=True)
         # Blank label in the selectbox so only the styled markdown shows
         user_symptoms[symptom] = st.selectbox("", options, key=symptom)
 
@@ -153,8 +153,8 @@ if submitted:
     prediction, probs = predict_disease(df, user_symptoms)
     confidence = probs.get(prediction, 0)
 
-    st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
-    st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
+    st.markdown(f"<div style='color:#111;font-size:18px;'><strong>🎯 Based on your symptoms, the most likely disease is:</strong> <span style='font-size:20px;color:#0d47a1'><strong>{prediction}</strong></span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='color:#333;font-size:16px;'>🧪 <strong>Prediction Confidence:</strong> {confidence:.2f}%</div>", unsafe_allow_html=True)
 
     if probs:
         # --- Annotated Bar Chart ---
