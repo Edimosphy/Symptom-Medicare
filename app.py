@@ -5,31 +5,24 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# --- Page Config ---
+# --- Streamlit Page Configuration ---
 st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
 
-# --- Custom CSS for UI ---
+# --- Custom CSS Styling ---
 st.markdown("""
     <style>
-        /* Background color for the entire app */
         .stApp {
             background-color: #e3f2fd;
         }
-
-        /* Header text color */
         h1, h2, h3, h4 {
             color: #0d47a1;
         }
-
-        /* Form elements */
         .stSelectbox, .stTextInput, .stForm {
             background-color: #ffffff;
             border-radius: 10px;
             padding: 8px;
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
         }
-
-        /* Button styling */
         .stButton>button {
             background-color: #1565c0;
             color: white;
@@ -37,18 +30,13 @@ st.markdown("""
             padding: 10px 16px;
             font-size: 16px;
         }
-
         .stButton>button:hover {
             background-color: #0d47a1;
             color: #ffffff;
         }
-
-        /* Sidebar */
         section[data-testid="stSidebar"] {
             background-color: #bbdefb;
         }
-
-        /* Markdown Text */
         .markdown-text-container p {
             color: #0f3057;
             font-size: 16px;
@@ -56,8 +44,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
-# --- Load data ---
+# --- Sample Data ---
 data = {
     'Disease': ['Malaria', 'Malaria', 'Malaria',
                 'Typhoid', 'Typhoid', 'Typhoid',
@@ -95,10 +82,8 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# --- Title ---
+# --- Title & Intro ---
 st.title("🩺 Symptom MediCare")
-
-# --- Intro ---
 st.markdown("""
 Welcome to **Symptom MediCare**!
 
@@ -121,13 +106,14 @@ symptom_option_mapping = {
     'Lymph Node Swelling': ['High', 'Yes', 'No']
 }
 
+# --- Input Form ---
 user_symptoms = {}
 with st.form("symptom_form"):
     for symptom, options in symptom_option_mapping.items():
         user_symptoms[symptom] = st.selectbox(symptom, options)
     submitted = st.form_submit_button("Predict Disease")
 
-# --- Naive Bayes Prediction ---
+# --- Naive Bayes Classifier ---
 def predict_disease(df, user_symptoms):
     disease_probs = {}
     total_count = len(df)
@@ -158,22 +144,33 @@ def predict_disease(df, user_symptoms):
 # --- Display Result ---
 if submitted:
     prediction, probs = predict_disease(df, user_symptoms)
+    confidence = probs.get(prediction, 0)
+
     st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
+    st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
 
     if probs:
-        # Plot probabilities
+        # --- Annotated Bar Chart ---
         fig, ax = plt.subplots()
         diseases = list(probs.keys())
         values = list(probs.values())
+
         sns.barplot(x=diseases, y=values, palette='coolwarm', ax=ax)
+
+        for i, (disease, prob) in enumerate(zip(diseases, values)):
+            ax.text(i, prob + 1, f"{prob:.1f}%", ha='center', va='bottom', fontsize=10, color='black', fontweight='bold')
+
         ax.set_ylabel("Probability (%)")
         ax.set_title("Disease Prediction Probability")
+        ax.set_ylim(0, max(values) + 10)
+
         st.pyplot(fig)
-        
-# --- Sidebar ---
+    
+
+# --- Sidebar Info ---
 st.sidebar.header("About")
 st.sidebar.info("""
-**Created by:** Edidiong Moses  
+**Created by:** Edidiong Moses (Edimosphy) 
 **Initiated by:** 3MTT Nigeria  
-**Built with:** Streamlit + Naive Bayes  
+**Built with:** Streamlit + Python Libraries
 """)
