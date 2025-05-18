@@ -8,41 +8,27 @@ import matplotlib.pyplot as plt
 # --- Streamlit Page Configuration ---
 st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
 
-# --- Custom CSS Styling ---
 st.markdown("""
     <style>
         .stApp {
             background-color: #e3f2fd;
             font-size: 18px;
-        }
-
-        h1, h2, h3, h4 {
             color: black !important;
-            font-size: 24px !important;
         }
 
-        /* Sidebar */
+        h1, h2, h3, h4, p, li, span, div {
+            color: black !important;
+        }
+
+        .markdown-text-container, .stMarkdown, .css-1v0mbdj, .css-10trblm {
+            color: black !important;
+        }
+
         section[data-testid="stSidebar"] {
             background-color: #bbdefb;
-        }
-
-        /* Markdown and paragraph text */
-        .markdown-text-container p,
-        .stMarkdown p,
-        .stMarkdown span {
             color: black !important;
-            font-size: 18px !important;
         }
 
-        /* Selectbox, Inputs, and Form Styling */
-        .stSelectbox, .stTextInput, .stForm {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 8px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Button Styling */
         .stButton>button {
             background-color: #1565c0;
             color: white;
@@ -53,11 +39,17 @@ st.markdown("""
 
         .stButton>button:hover {
             background-color: #0d47a1;
-            color: #ffffff;
         }
 
-        body {
-            overflow-x: hidden;
+        .stAlert, .stNotification {
+            color: black !important;
+        }
+
+        .stSelectbox, .stTextInput, .stForm {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 8px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
         }
     </style>
 """, unsafe_allow_html=True)
