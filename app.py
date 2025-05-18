@@ -5,21 +5,57 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# --- Page Config ---
 st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
 
+# --- Custom CSS for UI ---
 st.markdown("""
     <style>
-        .main { background-blue: #f4f9fd; }
-        h1, h3 { color: #0f4c75; }
-        .stButton>button {
-            background-color: #3282b8;
-            color: white;
-            border-radius: 8px;
+        /* Background color for the entire app */
+        .stApp {
+            background-color: #e3f2fd;
         }
-        
-        
+
+        /* Header text color */
+        h1, h2, h3, h4 {
+            color: #0d47a1;
+        }
+
+        /* Form elements */
+        .stSelectbox, .stTextInput, .stForm {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 8px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button styling */
+        .stButton>button {
+            background-color: #1565c0;
+            color: white;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 16px;
+        }
+
+        .stButton>button:hover {
+            background-color: #0d47a1;
+            color: #ffffff;
+        }
+
+        /* Sidebar */
+        section[data-testid="stSidebar"] {
+            background-color: #bbdefb;
+        }
+
+        /* Markdown Text */
+        .markdown-text-container p {
+            color: #0f3057;
+            font-size: 16px;
+        }
     </style>
 """, unsafe_allow_html=True)
+
 
 # --- Load data ---
 data = {
@@ -134,8 +170,10 @@ if submitted:
         ax.set_title("Disease Prediction Probability")
         st.pyplot(fig)
         
+# --- Sidebar ---
 st.sidebar.header("About")
 st.sidebar.info("""
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
 **Built with:** Streamlit + Naive Bayes  
+""")
