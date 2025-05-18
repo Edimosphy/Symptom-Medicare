@@ -1,48 +1,50 @@
 
 import streamlit as st
 import pandas as pd
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# --- Streamlit Page Configuration ---
-st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="centered")
-
+# --- Enforce Light UI Styling ---
+st.set_page_config(page_title="Symptom MediCare", layout="centered")
 st.markdown("""
-<style>
-    .stApp {
-        background-color: #ffffff;
-        color: #111 !important;
-    }
+    <style>
+        .stApp {
+            background-color: #ffffff;
+            color: #111;
+        }
 
-    h1, h2, h3, .stMarkdown p {
-        color: #111 !important;
-    }
+        h1, h2, h3, .stMarkdown p {
+            color: #111 !important;
+        }
 
-    .stButton > button {
-        background-color: #1976d2;
-        color: white;
-        border-radius: 6px;
-        padding: 10px 16px;
-        font-size: 16px;
-    }
+        .stButton > button {
+            background-color: #1565c0 !important;
+            color: white !important;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 16px;
+        }
 
-    .stButton > button:hover {
-        background-color: #125aa0;
-    }
+        .stButton > button:hover {
+            background-color: #0d47a1 !important;
+        }
 
-    div[data-baseweb="select"] > div {
-        background-color: white !important;
-        color: black !important;
-    }
-</style>
+        div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: black !important;
+        }
+    </style>
 """, unsafe_allow_html=True)
 
+# --- Title & Intro ---
+st.title("🩺 Symptom MediCare")
+st.markdown("""
+Welcome to **Symptom MediCare**!  
+This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** based on symptoms you select.
+""")
 
-
-         
-
-# --- Sample Data ---
+# --- Symptom Dataset ---
 data = {
     'Disease': ['Malaria', 'Malaria', 'Malaria',
                 'Typhoid', 'Typhoid', 'Typhoid',
@@ -80,16 +82,6 @@ data = {
 }
 df = pd.DataFrame(data)
 
-# --- Title & Intro ---
-st.title("🩺 Symptom MediCare")
-st.markdown("""
-Welcome to **Symptom MediCare**!
-
-This demo app is designed to assist healthcare workers and individuals in predicting the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** based on symptom input.
-
-Please select your symptom levels below:
-""")
-
 # --- Symptom Options ---
 symptom_option_mapping = {
     'Fever': ['High', 'Medium', 'Low'],
@@ -104,21 +96,15 @@ symptom_option_mapping = {
     'Lymph Node Swelling': ['High', 'Yes', 'No']
 }
 
+# --- Form Input ---
 user_symptoms = {}
-
 with st.form("symptom_form"):
     st.markdown("### 📝 Please select your symptom levels below:")
 
     for symptom, options in symptom_option_mapping.items():
-        # Custom visible label
-        #st.markdown(f"<label style='font-weight: 600; color: #000;'>{symptom}</label>", unsafe_allow_html=True)
-        # Blank label in the selectbox so only the styled markdown shows
-        user_symptoms[symptom] = st.selectbox("", options, key=symptom)
+        user_symptoms[symptom] = st.selectbox(f"**{symptom}**", options, key=symptom)
 
     submitted = st.form_submit_button("🧪 Predict Disease")
-    
-
-
 
 # --- Naive Bayes Classifier ---
 def predict_disease(df, user_symptoms):
@@ -148,36 +134,45 @@ def predict_disease(df, user_symptoms):
     predicted = max(disease_probs, key=disease_probs.get)
     return predicted, disease_probs
 
-# --- Display Result ---
+# --- Display Results ---
 if submitted:
     prediction, probs = predict_disease(df, user_symptoms)
     confidence = probs.get(prediction, 0)
 
-    st.markdown(f"<div style='color:#111;font-size:18px;'><strong>🎯 Based on your symptoms, the most likely disease is:</strong> <span style='font-size:20px;color:#0d47a1'><strong>{prediction}</strong></span></div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='color:#333;font-size:16px;'>🧪 <strong>Prediction Confidence:</strong> {confidence:.2f}%</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style='margin-top:20px; padding:10px; font-size:18px; color:#111;'>
+    🎯 <strong>Based on your symptoms, the most likely disease is:</strong><br>
+    <span style='font-size:22px; color:#1565c0; font-weight:bold'>{prediction}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
+    st.markdown(f"""
+    <div style='font-size:16px; color:#444; margin-bottom:10px;'>
+    🧪 <strong>Prediction Confidence:</strong> {confidence:.2f}%
+    </div>
+    """, unsafe_allow_html=True)
+
+    # --- Plot chart ---
     if probs:
-        # --- Annotated Bar Chart ---
+        st.markdown("### 📊 Prediction Probability Chart")
         fig, ax = plt.subplots()
         diseases = list(probs.keys())
         values = list(probs.values())
-
         sns.barplot(x=diseases, y=values, palette='coolwarm', ax=ax)
 
         for i, (disease, prob) in enumerate(zip(diseases, values)):
-            ax.text(i, prob + 1, f"{prob:.1f}%", ha='center', va='bottom', fontsize=10, color='black', fontweight='bold')
+            ax.text(i, prob + 1, f"{prob:.1f}%", ha='center', va='bottom',
+                    fontsize=10, color='black', fontweight='bold')
 
         ax.set_ylabel("Probability (%)")
         ax.set_title("Disease Prediction Probability")
         ax.set_ylim(0, max(values) + 10)
-
         st.pyplot(fig)
-    
 
 # --- Sidebar Info ---
 st.sidebar.header("About")
 st.sidebar.info("""
-**Created by:** Edidiong Moses (Edimosphy) 
+**Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
-**Built with:** Streamlit + Python Libraries
+**Built with:** Streamlit + Python
 """)
