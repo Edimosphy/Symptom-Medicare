@@ -11,49 +11,36 @@ st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="cent
 st.markdown("""
     <style>
         .stApp {
-            background-color: #f8fbff;
+            background-color: #f5faff;
             font-size: 18px;
         }
 
         h1, h3 {
-            color: #003366 !important;
+            color: #0d47a1;
         }
 
-        .stSelectbox label {
-            font-weight: bold;
+        label, .stSelectbox label {
+            font-weight: 600;
+            color: #222;
         }
 
-        /* Fix for dark selectbox background */
-        div[data-baseweb="select"] > div {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-            border-radius: 8px;
-        }
-
-        /* Fix for dark dropdown items */
-        div[data-baseweb="select"] div[role="option"] {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        /* Fix for submit button */
         .stButton > button {
-            background-color: #1976d2 !important;
-            color: white !important;
+            background-color: #2196f3;
+            color: white;
             border: none;
             border-radius: 8px;
-            padding: 10px 16px;
+            padding: 10px 20px;
             font-size: 16px;
         }
 
         .stButton > button:hover {
-            background-color: #115293 !important;
+            background-color: #1976d2;
         }
     </style>
 """, unsafe_allow_html=True)
 
 
-          
+         
 
 # --- Sample Data ---
 data = {
