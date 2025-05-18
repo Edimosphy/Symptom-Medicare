@@ -139,18 +139,9 @@ if submitted:
     prediction, probs = predict_disease(df, user_symptoms)
     confidence = probs.get(prediction, 0)
 
-    st.markdown(f"""
-    <div style='margin-top:20px; padding:10px; font-size:18px; color:#111;'>
-    🎯 <strong>Based on your symptoms, the most likely disease is:</strong><br>
-    <span style='font-size:22px; color:#1565c0; font-weight:bold'>{prediction}</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div style='font-size:16px; color:#444; margin-bottom:10px;'>
-    🧪 <strong>Prediction Confidence:</strong> {confidence:.2f}%
-    </div>
-    """, unsafe_allow_html=True)
+    st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
+    st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
+    
 
     # --- Plot chart ---
     if probs:
