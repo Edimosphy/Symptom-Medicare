@@ -127,12 +127,16 @@ symptom_option_mapping = {
     'Lymph Node Swelling': ['High', 'Yes', 'No']
 }
 
-# --- Input Form ---
 user_symptoms = {}
-with st.form("symptom_form"):
-    for symptom, options in symptom_option_mapping.items():
-        user_symptoms[symptom] = st.selectbox(symptom, options)
-    submitted = st.form_submit_button("Predict Disease")
+# Create select boxes for each symptom
+for symptom, options in symptom_option_mapping.items():
+    # Get the list of values for the selectbox
+    option_values = list(options.values())
+    # Use a unique key for each selectbox in the loop [1]
+    selected_value = st.selectbox(f"Select {symptom}", option_values, key=f"symptom_{symptom}")
+    # Store the selected value in the user_symptoms dictionary
+    user_symptoms[symptom] = selected_value
+    
 
 # --- Naive Bayes Classifier ---
 def predict_disease(df, user_symptoms):
