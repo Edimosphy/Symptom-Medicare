@@ -176,5 +176,3 @@ cython_debug/
 #System files
 .DS_Store
 
-#Streamlit
-.streamlit/config.toml
