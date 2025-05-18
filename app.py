@@ -102,7 +102,7 @@ with st.form("symptom_form"):
     st.markdown("### 📝 Please select your symptom levels below:")
 
     for symptom, options in symptom_option_mapping.items():
-        user_symptoms[symptom] = st.selectbox(f"**Select{symptom}**", options, key=symptom)
+        user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
 
     submitted = st.form_submit_button("🧪 Predict Disease")
 
