@@ -11,51 +11,49 @@ st.set_page_config(page_title="Symptom MediCare", page_icon="🩺", layout="cent
 st.markdown("""
     <style>
         .stApp {
-            background-color: #e3f2fd;
+            background-color: #f8fbff;
             font-size: 18px;
-            color: black !important;
         }
 
-        h1, h2, h3, h4, p, li, span, div {
-            color: black !important;
+        h1, h3 {
+            color: #003366 !important;
         }
 
-        .markdown-text-container, .stMarkdown, .css-1v0mbdj, .css-10trblm {
-            color: black !important;
+        .stSelectbox label {
+            font-weight: bold;
         }
 
-        section[data-testid="stSidebar"] {
-            background-color: #bbdefb;
-            color: black !important;
+        /* Fix for dark selectbox background */
+        div[data-baseweb="select"] > div {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border-radius: 8px;
         }
 
-        .stButton>button {
-            background-color: #1565c0;
-            color: white;
-            border-radius: 10px;
+        /* Fix for dark dropdown items */
+        div[data-baseweb="select"] div[role="option"] {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        /* Fix for submit button */
+        .stButton > button {
+            background-color: #1976d2 !important;
+            color: white !important;
+            border: none;
+            border-radius: 8px;
             padding: 10px 16px;
-            font-size: 18px !important;
+            font-size: 16px;
         }
 
-        .stButton>button:hover {
-            background-color: #0d47a1;
-        }
-
-        .stAlert, .stNotification {
-            color: black !important;
-        }
-
-        .stSelectbox, .stTextInput, .stForm {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 8px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+        .stButton > button:hover {
+            background-color: #115293 !important;
         }
     </style>
 """, unsafe_allow_html=True)
 
 
-             
+          
 
 # --- Sample Data ---
 data = {
