@@ -144,7 +144,7 @@ if submitted:
 
     # --- Chart ---
     if probs:
-        st.markdown("### 📊 Prediction Probability Chart")
+        st.markdown("### 📊 Symptom MediCare Prediction Probability Chart")
         fig, ax = plt.subplots()
         diseases = list(probs.keys())
         values = list(probs.values())
@@ -155,7 +155,7 @@ if submitted:
                     fontsize=10, color='black', fontweight='bold')
 
         ax.set_ylabel("Probability (%)")
-        ax.set_title("Disease Prediction")
+        ax.set_title("Symptom MediCare Disease Prediction")
         ax.set_ylim(0, max(values) + 10)
         st.pyplot(fig)
 
@@ -163,8 +163,10 @@ if submitted:
 st.sidebar.header("About")
 st.sidebar.info("""
 **Symptom MediCare**  
-Symptom MediCare is a health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms. It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public.
-By guiding healthcare workers toward more accurate assessmentsin the earlier detection and diagnosis of diseases, ensuring patients receive the right treatment at the right time.
+Symptom MediCare is a health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms. 
+It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public.
+By guiding healthcare workers toward more accurate assessmentsin the earlier detection and diagnosis of diseases.
+Ensuring patients receive the right treatment at the right time.
 
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
