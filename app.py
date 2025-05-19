@@ -104,6 +104,10 @@ with st.form("symptom_form"):
     # Add a text input for the user's name
 user_name = st.text_input("Enter your Name")
 
+# Display a personalized message if a name was entered
+    if user_name:
+        st.write(f"Hello, {user_name}!")
+
 
     for symptom, options in symptom_option_mapping.items():
         user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
@@ -167,6 +171,7 @@ if submitted:
 # --- Sidebar Info ---
 st.sidebar.header("About")
 st.sidebar.info("""
+**Symptom MediCare: **
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
 **Built with:** Streamlit + Python
