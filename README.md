@@ -29,7 +29,9 @@ This health-simulated demo project aims to tackle critical health challenges in 
 
 After submitting your symptoms, the app shows:
 - The most likely disease
-- A probability chart comparing likelihoods for all diseas
+- A probability chart comparing likelihoods for all disease
+  ![Screenshot 2025-05-19 151502](https://github.com/user-attachments/assets/817dab2b-6824-4a78-b27c-9d1a0c72a7d6)
+
 
 ## APP Deployment
 This health simulated demo app will be depolyed on Streamlit
@@ -45,7 +47,7 @@ Here is the link to the colab notebook
 3. 
 
 ## Challenges
-1. Limited Health database for the Model training
+1. Limited Health database and medical resources for the Model training
 
 ## 📬 Feedback
 Suggestions or improvements? Reach out or open an issue on the GitHub repo.
