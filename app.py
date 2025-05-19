@@ -38,7 +38,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Title & Intro ---
-st.title("🩺 Symptom MediCare")
+st.title("Symptom MediCare 🩺")
 st.markdown("""
 Welcome to **Symptom MediCare**!  
 This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** based on symptoms you select.
@@ -100,14 +100,10 @@ symptom_option_mapping = {
 user_symptoms = {}
 with st.form("symptom_form"):
     st.markdown("### 📝 Please choose the options that best describe the symptoms you are experiencing:")
-    
-    # Add a text input for the user's name
-user_name = st.text_input("Enter your Name")
 
-# Display a personalized message if a name was entered
+    user_name = st.text_input("Enter your Name")
     if user_name:
         st.write(f"Hello, {user_name}!")
-
 
     for symptom, options in symptom_option_mapping.items():
         user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
@@ -149,7 +145,6 @@ if submitted:
 
     st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
     st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
-    
 
     # --- Plot chart ---
     if probs:
@@ -171,11 +166,13 @@ if submitted:
 # --- Sidebar Info ---
 st.sidebar.header("About")
 st.sidebar.info("""
-**Symptom MediCare: **This health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms.
-It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public. 
-By guiding healthcare workers toward more accurate assessments, it will ultimately lead to the earlier detection and diagnosis of diseases, 
-ensuring patients receive the right treatment at the right time.
+**Symptom MediCare**  
+This health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms.
+It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public.  
+By guiding healthcare workers toward more accurate assessments, it will ultimately lead to earlier detection and diagnosis of diseases.
+
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
-**Built with:** Streamlit + Naive Byes
+**Built with:** Streamlit + Naive Bayes
 """)
+
