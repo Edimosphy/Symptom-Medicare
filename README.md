@@ -25,7 +25,7 @@ This health-simulated demo project aims to tackle critical health challenges in 
 3. The algorithm then computes the most likely disease and shows a chart of probabilities.
 
 ## Result
-### 📊 Example Output
+### 📊 Result Output
 
 After submitting your symptoms, the app shows:
 - The most likely disease
