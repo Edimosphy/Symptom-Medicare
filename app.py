@@ -100,6 +100,10 @@ symptom_option_mapping = {
 user_symptoms = {}
 with st.form("symptom_form"):
     st.markdown("### 📝 Please choose the options that best describe the symptoms you are experiencing:")
+    
+    # Add a text input for the user's name
+user_name = st.text_input("Enter your Name")
+
 
     for symptom, options in symptom_option_mapping.items():
         user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
