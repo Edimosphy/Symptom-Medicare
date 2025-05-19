@@ -163,7 +163,8 @@ if submitted:
 st.sidebar.header("About")
 st.sidebar.info("""
 **Symptom MediCare**  
-A smart health demo project to support accurate symptom-based diagnosis.
+Symptom MediCare is a health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms. It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public.
+By guiding healthcare workers toward more accurate assessmentsin the earlier detection and diagnosis of diseases, ensuring patients receive the right treatment at the right time.
 
 **Created by:** Edidiong Moses  
 **Initiated by:** 3MTT Nigeria  
