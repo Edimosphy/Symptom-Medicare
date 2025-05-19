@@ -7,7 +7,7 @@ This health-simulated demo project aims to tackle critical health challenges in 
 ## Problems that project aim to address:
 
 #### Symptom MediCare is designed to:
-1. Reduce Misdiagnosis: By guiding healthcare workers toward more accurate assessments.
+1. Reduce Misdiagnosis: By guiding healthcare workers toward more accurate assessments especially in the rural areas where there is inadequate medical facilities 
 2. Prevent Drug Misuse: Ensuring people use the right medicine for the right illness, reducing inappropriate use of important drugs.
 3. Enable Early Detection: Leading to earlier diagnosis, so patients receive the right treatment at the right time.
 
