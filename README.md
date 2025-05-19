@@ -29,7 +29,7 @@ This health-simulated demo project aims to tackle critical health challenges in 
 
 After submitting your symptoms, the app shows:
 - The most likely disease
-- A probability chart comparing likelihoods for all disease
+- A probability chart comparing likelihoods for all diseases
   ![Screenshot 2025-05-19 151502](https://github.com/user-attachments/assets/817dab2b-6824-4a78-b27c-9d1a0c72a7d6)
 
 
@@ -44,7 +44,7 @@ Here is the link to the colab notebook
 ## Future plan, Innovation and Collaboration:
 1. Advanced Machine Learning to build an even more robust AI model.
 2. Introduce databases where vital user information like age, gender, and location can be securely stored. This data will be valuable for medical research and crucial for tracking disease outbreaks across Nigeria and the World at large
-3. 
+
 
 ## Challenges
 1. Limited Health database and medical resources for the Model training
@@ -56,4 +56,4 @@ Suggestions or improvements? Reach out or open an issue on the GitHub repo.
 Contact via email - edimosphy@gmail.com
 
 ## Disclaimer
-This is not a replacement to medical treatment and diagnosis but to aid in medical diagnosis, research, treatment and education.
+This is not a replacement to medical treatment, diagnosis and test but to aid in medical diagnosis, research, treatment and education.
