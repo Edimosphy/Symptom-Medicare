@@ -99,16 +99,19 @@ symptom_option_mapping = {
 # --- Form Input ---
 user_symptoms = {}
 with st.form("symptom_form"):
-    st.markdown("### 📝 Please choose the options that best describe the symptoms you are experiencing:")
-
+    st.markdown("### 📝 Please enter your name to continue:")
     user_name = st.text_input("Enter your Name")
+
     if user_name:
-        st.write(f"Hello, {user_name}!")
+        st.write(f"Hello, {user_name}! Please choose the options that best describe your symptoms:")
 
-    for symptom, options in symptom_option_mapping.items():
-        user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
+        for symptom, options in symptom_option_mapping.items():
+            user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
 
-    submitted = st.form_submit_button("🧪 Predict Disease")
+        submitted = st.form_submit_button("🧪 Predict Disease")
+    else:
+        submitted = st.form_submit_button("🧪 Predict Disease")
+        st.warning("⚠️ Please enter your name to access symptom selection.")
 
 # --- Naive Bayes Classifier ---
 def predict_disease(df, user_symptoms):
@@ -139,14 +142,13 @@ def predict_disease(df, user_symptoms):
     return predicted, disease_probs
 
 # --- Display Results ---
-if submitted:
+if submitted and user_name:
     prediction, probs = predict_disease(df, user_symptoms)
     confidence = probs.get(prediction, 0)
 
-    st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
+    st.success(f"🎯 {user_name}, based on your symptoms, the most likely disease is: **{prediction}**")
     st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
 
-    # --- Plot chart ---
     if probs:
         st.markdown("### 📊 Symptom Medicare Disease Prediction Probability Chart")
         fig, ax = plt.subplots()
@@ -175,4 +177,5 @@ By guiding healthcare workers toward more accurate assessments, it will ultimate
 **Initiated by:** 3MTT Nigeria  
 **Built with:** Streamlit + Naive Bayes
 """)
+
 
