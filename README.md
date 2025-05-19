@@ -33,7 +33,7 @@ After submitting your symptoms, the app shows:
 
 ## APP Deployment
 This health simulated demo app will be depolyed on Streamlit
-Here is the link of the app 
+Here is the link of the app **https://symptom-medicare.streamlit.app/**
 
 ## Colab notelink Access
 Here is the link to the colab notebook
@@ -51,7 +51,7 @@ Here is the link to the colab notebook
 Suggestions or improvements? Reach out or open an issue on the GitHub repo.
 
 ## Collaboration
-Reach me via email - edimosphy@gmail.com
+Contact via email - edimosphy@gmail.com
 
 ## Disclaimer
 This is not a replacement to medical treatment and diagnosis but to aid in medical diagnosis, research, treatment and education.
