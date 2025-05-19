@@ -99,7 +99,7 @@ symptom_option_mapping = {
 # --- Form Input ---
 user_symptoms = {}
 with st.form("symptom_form"):
-    st.markdown("### 📝 Please select your symptom levels below:")
+    st.markdown("### 📝 Please choose the options that best describe the symptoms you are experiencing:")
 
     for symptom, options in symptom_option_mapping.items():
         user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
@@ -145,7 +145,7 @@ if submitted:
 
     # --- Plot chart ---
     if probs:
-        st.markdown("### 📊 Prediction Probability Chart")
+        st.markdown("### 📊 Symptom Medicare Disease Prediction Probability Chart")
         fig, ax = plt.subplots()
         diseases = list(probs.keys())
         values = list(probs.values())
@@ -156,7 +156,7 @@ if submitted:
                     fontsize=10, color='black', fontweight='bold')
 
         ax.set_ylabel("Probability (%)")
-        ax.set_title("Disease Prediction Probability")
+        ax.set_title("Symptom Medicare Disease Prediction")
         ax.set_ylim(0, max(values) + 10)
         st.pyplot(fig)
 
