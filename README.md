@@ -12,7 +12,7 @@ This health-simulated demo project aims to tackle critical health challenges in 
 3. Enable Early Detection: Leading to earlier diagnosis, so patients receive the right treatment at the right time.
 
 ## Project Features:
-1. - Built using Streamlit, Pandas, Matplotlib, Seaborn and probabilistic approaches called Naive Bayes.
+1. Built using Streamlit, Pandas, Matplotlib, Seaborn and probabilistic approaches called Naive Bayes.
 2.  Visualizes probability distribution using bar chart
 3.   Fully interactive UI with dropdown selectors
 4.   Styled with a clean and emoji cues
