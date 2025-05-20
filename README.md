@@ -31,6 +31,8 @@ After submitting your symptoms, the app shows:
 - The most likely disease
 - A probability chart comparing likelihoods for all diseases
   ![image](https://github.com/user-attachments/assets/71546846-ecc0-44fb-a9db-ffe9ad4419a9)
+  ![image](https://github.com/user-attachments/assets/6747052f-9ce6-4aa1-8560-391d1c5e44dc)
+
 
 
 
