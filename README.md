@@ -22,14 +22,16 @@ This health-simulated demo project aims to tackle critical health challenges in 
 ## How it Works:
 1. The app uses a Naive Bayes classifier trained on a small simulated dataset.
 2. Users select symptoms such as Fever level, Fatigue, Vomiting, and more.
-3. The algorithm then computes the most likely disease and shows a chart of probabilities.
+3. The algorithm then computes the most likely disease and based on the provided symptoms and calculates the probabilities of all the targeted diseases.
 
 ## Result
 ### 📊 Result Output
 
 After submitting your symptoms, the app shows:
-- The most likely disease ![image](https://github.com/user-attachments/assets/71546846-ecc0-44fb-a9db-ffe9ad4419a9)
-- A probability chart comparing likelihoods for all diseases ![image](https://github.com/user-attachments/assets/6747052f-9ce6-4aa1-8560-391d1c5e44dc)
+- The most likely disease
+- ![image](https://github.com/user-attachments/assets/71546846-ecc0-44fb-a9db-ffe9ad4419a9)
+![image](https://github.com/user-attachments/assets/6747052f-9ce6-4aa1-8560-391d1c5e44dc)
+- A probability chart comparing likelihoods for all diseases
 
 
 
