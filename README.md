@@ -30,7 +30,8 @@ This health-simulated demo project aims to tackle critical health challenges in 
 After submitting your symptoms, the app shows:
 - The most likely disease
 - A probability chart comparing likelihoods for all diseases
-  ![Screenshot 2025-05-19 151502](https://github.com/user-attachments/assets/817dab2b-6824-4a78-b27c-9d1a0c72a7d6)
+  ![image](https://github.com/user-attachments/assets/71546846-ecc0-44fb-a9db-ffe9ad4419a9)
+
 
 
 ## APP Deployment
