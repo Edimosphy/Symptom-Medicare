@@ -176,7 +176,7 @@ if prompt := st.chat_input("Ask me about your diet or recovery tips..."):
             nutritional_keywords = ["eat", "drink", "food", "diet", "nutrition", "moringa", "pap", "water", "fruit", "recovery"]
             
             if any(word in prompt.lower() for word in nutritional_keywords):
-                response = f"Regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Nutritional Recommendations' section above. As a biochemist, I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
+                response = f"Regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Recommendations' section above. I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
             else:
                 # The "Redirect to Medical Workers" Fallback
                 response = "I am specialized only in nutritional recovery and biochemical health tips. For diagnosis, drug prescriptions, or more advanced medical knowledge, please consult your **medical workers** or use the 'Find Nearest Hospital' button."
