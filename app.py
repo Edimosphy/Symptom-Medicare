@@ -8,43 +8,23 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Symptom MediCare", layout="centered")
 st.markdown("""
     <style>
-        .stApp {
-            background-color: #ffffff;
-            color: #111;
-        }
-
-        h1, h2, h3, .stMarkdown p {
-            color: #111 !important;
-        }
-
+        .stApp { background-color: #ffffff; color: #111; }
+        h1, h2, h3, .stMarkdown p { color: #111 !important; }
         .stButton > button {
             background-color: #1565c0 !important;
             color: white !important;
-            border: none;
             border-radius: 8px;
             padding: 10px 18px;
-            font-size: 16px;
         }
-
-        .stButton > button:hover {
-            background-color: #0d47a1 !important;
-        }
-
-        div[data-baseweb="select"] > div {
-            background-color: white !important;
-            color: black !important;
-        }
+        .stButton > button:hover { background-color: #0d47a1 !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # --- Title & Intro ---
 st.title("Symptom MediCare 🩺")
-st.markdown("""
-Welcome to **Symptom MediCare**!  
-This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** based on symptoms you select.
-""")
+st.markdown("Welcome to **Symptom MediCare**! This tool predicts the likelihood of illness and provides biochemical nutritional guidance.")
 
-# --- Symptom Options ---
+# --- Symptom Options & Dataset (Keep your existing data) ---
 symptom_option_mapping = {
     'Fever': ['High', 'Medium', 'Low'],
     'Fatigue': ['Very High', 'High', 'Medium', 'Low'],
@@ -58,118 +38,115 @@ symptom_option_mapping = {
     'Lymph Node Swelling': ['High', 'Yes', 'No']
 }
 
-# --- Symptom Dataset ---
 data = {
-    'Disease': ['Malaria', 'Malaria', 'Malaria',
-                'Typhoid', 'Typhoid', 'Typhoid',
-                'HIV/AIDS', 'HIV/AIDS', 'HIV/AIDS'],
-    'Fever': ['High', 'Medium', 'High',
-              'High', 'High', 'Medium',
-              'Medium', 'Low', 'Low'],
-    'Fatigue': ['Very High', 'High', 'High',
-                'High', 'Medium', 'Low',
-                'Very High', 'High', 'High'],
-    'Headache': ['High', 'Medium', 'High',
-                 'Very High (Heaviness)', 'High', 'Medium',
-                 'Low', 'Medium', 'Medium'],
-    'Vomiting': ['Yes', 'Yes', 'Yes',
-                 'Yes', 'Yes', 'No',
-                 'Yes', 'Yes', 'Yes'],
-    'Skin Rash': ['Mild', 'Mild', 'None',
-                  'Rose spots', 'Mild', 'None',
-                  'High', 'High', 'Medium'],
-    'Muscle Joint Pain': ['Yes', 'No', 'Medium',
-                          'No', 'Yes', 'Medium',
-                          'Yes', 'Yes', 'Yes'],
-    'Weight Loss': ['Moderate', 'Mild', 'Severe',
-                    'Mild', 'Mild', 'Moderate',
-                    'Severe', 'Severe', 'Severe'],
-    'Diarrhea': ['No', 'Yes', 'No',
-                 'Yes', 'No', 'Yes',
-                 'Yes', 'Yes', 'Yes'],
-    'Night Sweats': ['Yes', 'Yes', 'No',
-                     'No', 'No', 'No',
-                     'Yes', 'Yes', 'Yes'],
-    'Lymph Node Swelling': ['No', 'No', 'No',
-                             'No', 'No', 'No',
-                             'Yes', 'Yes', 'High']
+    'Disease': ['Malaria', 'Malaria', 'Malaria', 'Typhoid', 'Typhoid', 'Typhoid', 'HIV/AIDS', 'HIV/AIDS', 'HIV/AIDS'],
+    'Fever': ['High', 'Medium', 'High', 'High', 'High', 'Medium', 'Medium', 'Low', 'Low'],
+    'Fatigue': ['Very High', 'High', 'High', 'High', 'Medium', 'Low', 'Very High', 'High', 'High'],
+    'Headache': ['High', 'Medium', 'High', 'Very High (Heaviness)', 'High', 'Medium', 'Low', 'Medium', 'Medium'],
+    'Vomiting': ['Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'Yes', 'Yes'],
+    'Skin Rash': ['Mild', 'Mild', 'None', 'Rose spots', 'Mild', 'None', 'High', 'High', 'Medium'],
+    'Muscle Joint Pain': ['Yes', 'No', 'Medium', 'No', 'Yes', 'Medium', 'Yes', 'Yes', 'Yes'],
+    'Weight Loss': ['Moderate', 'Mild', 'Severe', 'Mild', 'Mild', 'Moderate', 'Severe', 'Severe', 'Severe'],
+    'Diarrhea': ['No', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes'],
+    'Night Sweats': ['Yes', 'Yes', 'No', 'No', 'No', 'No', 'Yes', 'Yes', 'Yes'],
+    'Lymph Node Swelling': ['No', 'No', 'No', 'No', 'No', 'No', 'Yes', 'Yes', 'High']
 }
 df = pd.DataFrame(data)
 
-# --- Symptom Form ---
-user_symptoms = {}
-with st.form("symptom_form"):
-    st.markdown("### 📝 Select the options that best describe your symptoms:")
-
-    for symptom, options in symptom_option_mapping.items():
-        user_symptoms[symptom] = st.selectbox(f"**Select {symptom}**", options, key=symptom)
-
-    submitted = st.form_submit_button("🧪 Predict Disease")
-
-# --- Naive Bayes Classifier ---
+# --- Naive Bayes Classifier Function ---
 def predict_disease(df, user_symptoms):
     disease_probs = {}
     total_count = len(df)
     diseases = df['Disease'].unique()
-
     for disease in diseases:
         sub_df = df[df['Disease'] == disease]
         prior = len(sub_df) / total_count
         likelihood = 1.0
-
         for symptom, value in user_symptoms.items():
             match_count = len(sub_df[sub_df[symptom] == value])
             symptom_prob = (match_count + 1) / (len(sub_df) + len(df[symptom].unique()))
             likelihood *= symptom_prob
-
         disease_probs[disease] = prior * likelihood
-
     total_prob = sum(disease_probs.values())
-    if total_prob == 0:
-        return "No Match Found", {}
-
+    if total_prob == 0: return "No Match Found", {}
     for disease in disease_probs:
         disease_probs[disease] = (disease_probs[disease] / total_prob) * 100
+    return max(disease_probs, key=disease_probs.get), disease_probs
 
-    predicted = max(disease_probs, key=disease_probs.get)
-    return predicted, disease_probs
+# --- Form Section ---
+user_symptoms = {}
+with st.form("symptom_form"):
+    st.markdown("### 📝 Select your symptoms:")
+    cols = st.columns(2)
+    for i, (symptom, options) in enumerate(symptom_option_mapping.items()):
+        with cols[i % 2]:
+            user_symptoms[symptom] = st.selectbox(f"{symptom}", options, key=symptom)
+    submitted = st.form_submit_button("🧪 Predict Disease")
 
-# --- Display Results ---
+# --- Logic After Prediction ---
 if submitted:
     prediction, probs = predict_disease(df, user_symptoms)
-    confidence = probs.get(prediction, 0)
+    st.session_state['prediction'] = prediction
+    st.session_state['confidence'] = probs.get(prediction, 0)
+    st.session_state['probs'] = probs
 
-    st.success(f"🎯 Based on your symptoms, the most likely disease is: **{prediction}**")
-    st.info(f"🧪 Prediction Confidence: **{confidence:.2f}%**")
+if 'prediction' in st.session_state:
+    prediction = st.session_state['prediction']
+    confidence = st.session_state['confidence']
+    
+    st.success(f"🎯 Likely Condition: **{prediction}** ({confidence:.2f}%)")
+    
+    # --- The Two New Buttons ---
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("Recommendations"):
+            st.markdown("---")
+            st.subheader(f"Recovery Plan for {prediction}")
+            
+            if prediction == "Malaria":
+                st.write("""
+                **Medical Note:** Malaria causes oxidative stress and red blood cell turnover. 
+                * **Hydration:** Drink Coconut water (replaces electrolytes lost to fever).
+                * **Anti-inflammatory:** Take Ginger and Turmeric tea to reduce systemic inflammation.
+                * **Recovery:** Take Pawpaw leaf extract (widely studied for platelet support) and Vitamin C from Oranges/Guavas to boost immunity.
+                * **Tip:** Avoid heavy fats; your liver is currently working hard to clear the parasite.
+                         Avoid self medication with previously prescribed antimalarials as this might result to antimicrobial resistance.
+                         Get a proper prescription from a healthcare provider.
+                """)
+            elif prediction == "Typhoid":
+                st.write("""
+                **Medical Note:** Typhoid affects the intestinal lining. 
+                * **Diet:** Eat soft, bland foods (Pap/Akamu, boiled carrots).
+                * **Antibacterial Support:** Take Garlic and Honey (natural antimicrobial properties, but *not* a replacement for prescribed medicines).
+                * **Probiotics:** Take local yogurt or fermented foods to restore gut flora.
+                * **Tip:** Boil all drinking water to 100°C to prevent re-infection.
+                         Avoid self medication with previously prescribed antibiotics as this might result to antimicrobial resistance.
+                         Get a proper prescription from a healthcare provider.
+                """)
+            elif prediction == "HIV/AIDS":
+                st.write("""
+                **Medical Note:** Focus is on maintaining the CD4 count and preventing muscle wasting.
+                * **Protein:** High-quality protein (Beans, Lean Meat, Soya) to prevent weight loss.
+                * **Micronutrients:** Moringa oleifera (rich in iron and vitamins) and Selenium-rich foods.
+                * **Tip:** Avoid raw or unpasteurized foods to prevent opportunistic infections.
+                         Go to the nearest hospital to know your HIV status and get a proper prescription from a healthcare provider.
+                         
+                """)
+            
+            st.warning("⚠️ **Note on Resistance:** Do NOT take leftover antibiotics. Incomplete dosages create 'Superbugs'. Use these diets to support, not replace, clinical treatment.")
 
-    # --- Chart ---
-    if probs:
-        st.markdown("### 📊 Symptom MediCare Prediction Probability Chart")
-        fig, ax = plt.subplots()
-        diseases = list(probs.keys())
-        values = list(probs.values())
-        sns.barplot(x=diseases, y=values, palette='coolwarm', ax=ax)
+    with col2:
+        # Link to Google Maps for "Hospital near me"
+        map_url = "https://www.google.com/maps/search/hospital+near+me"
+        st.link_button("🏥 Find Nearest Hospital", map_url)
 
-        for i, (disease, prob) in enumerate(zip(diseases, values)):
-            ax.text(i, prob + 1, f"{prob:.1f}%", ha='center', va='bottom',
-                    fontsize=10, color='black', fontweight='bold')
+    # --- Chart (Keep existing) ---
+    st.markdown("### 📊 Probability Chart")
+    fig, ax = plt.subplots()
+    sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
+    st.pyplot(fig)
 
-        ax.set_ylabel("Probability (%)")
-        ax.set_title("Symptom MediCare Disease Prediction")
-        ax.set_ylim(0, max(values) + 10)
-        st.pyplot(fig)
-
-# --- Sidebar Info ---
+# --- Sidebar ---
 st.sidebar.header("About")
-st.sidebar.info("""
-**Symptom MediCare**  
-Symptom MediCare is a health-simulated demo project aims to tackle critical health challenges by providing a smarter way to diagnose diseases based on physical symptoms. 
-It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public.
-By guiding healthcare workers toward more accurate assessmentsin the earlier detection and diagnosis of diseases.
-Ensuring patients receive the right treatment at the right time.
-
-**Created by:** Edidiong Moses  
-**Initiated by:** 3MTT Nigeria  
-**Built with:** Streamlit + Naive Bayes
-""")
-
+st.sidebar.info("Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
