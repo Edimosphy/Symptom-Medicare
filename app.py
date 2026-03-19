@@ -147,6 +147,47 @@ if 'prediction' in st.session_state:
     sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
     st.pyplot(fig)
 
+# --- AI Bot Section (Guardrailed) ---
+# This section is intentionally left out to avoid any potential issues with AI-generated content. The focus is on providing accurate, evidence-based recommendations without the risk of misinformation.
+st.markdown("---")
+st.subheader("💬 Ask Your Symptom MediCare Assistant Bot")
+
+# Initialize Chat History
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display Chat History
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Chat Logic
+if prompt := st.chat_input("Ask me about your diet or recovery tips..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        # Check if a prediction exists in session state
+        if 'prediction' in st.session_state:
+            current_disease = st.session_state['prediction']
+            
+            # Biochemist Guardrail Logic
+            nutritional_keywords = ["eat", "drink", "food", "diet", "nutrition", "moringa", "pap", "water", "fruit", "recovery"]
+            
+            if any(word in prompt.lower() for word in nutritional_keywords):
+                response = f"Regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Nutritional Recommendations' section above. As a biochemist, I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
+            else:
+                # The "Redirect to Medical Workers" Fallback
+                response = "I am specialized only in nutritional recovery and biochemical health tips. For diagnosis, drug prescriptions, or more advanced medical knowledge, please consult your **medical workers** or use the 'Find Nearest Hospital' button."
+        else:
+            response = "Please complete the symptom selection and click 'Predict Disease' first so I can give you relevant advice."
+        
+        st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+#AI ends here. The bot is designed to provide safe, evidence-based nutritional advice while redirecting users to healthcare professionals for any medical concerns beyond its scope.    
+
 # --- Sidebar ---
 st.sidebar.header("About")
 st.sidebar.info("Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
