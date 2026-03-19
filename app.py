@@ -22,7 +22,7 @@ st.markdown("""
 
 # --- Title & Intro ---
 st.title("Symptom MediCare 🩺")
-st.markdown("Welcome to **Symptom MediCare**! This tool predicts the likelihood of illness and provides biochemical nutritional guidance.")
+st.markdown("Welcome to **Symptom MediCare**! This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** and provides biochemical nutritional guidance.")
 
 # --- Symptom Options & Dataset (Keep your existing data) ---
 symptom_option_mapping = {
@@ -106,7 +106,7 @@ if 'prediction' in st.session_state:
             
             if prediction == "Malaria":
                 st.write("""
-                **Medical Note:** Malaria causes oxidative stress and red blood cell turnover. 
+                **Medical Note:** Malaria causes oxidative stress and red blood cell turnover. Focus on liver recovery and hydration
                 * **Hydration:** Drink Coconut water (replaces electrolytes lost to fever).
                 * **Anti-inflammatory:** Take Ginger and Turmeric tea to reduce systemic inflammation.
                 * **Recovery:** Take Pawpaw leaf extract (widely studied for platelet support) and Vitamin C from Oranges/Guavas to boost immunity.
@@ -116,7 +116,7 @@ if 'prediction' in st.session_state:
                 """)
             elif prediction == "Typhoid":
                 st.write("""
-                **Medical Note:** Typhoid affects the intestinal lining. 
+                **Medical Note:** Typhoid affects the intestinal lining. Focus on gut health.
                 * **Diet:** Eat soft, bland foods (Pap/Akamu, boiled carrots).
                 * **Antibacterial Support:** Take Garlic and Honey (natural antimicrobial properties, but *not* a replacement for prescribed medicines).
                 * **Probiotics:** Take local yogurt or fermented foods to restore gut flora.
@@ -126,7 +126,7 @@ if 'prediction' in st.session_state:
                 """)
             elif prediction == "HIV/AIDS":
                 st.write("""
-                **Medical Note:** Focus is on maintaining the CD4 count and preventing muscle wasting.
+                **Medical Note:** Focus on immune system and preventing muscle wasting.
                 * **Protein:** High-quality protein (Beans, Lean Meat, Soya) to prevent weight loss.
                 * **Micronutrients:** Moringa oleifera (rich in iron and vitamins) and Selenium-rich foods.
                 * **Tip:** Avoid raw or unpasteurized foods to prevent opportunistic infections.
