@@ -152,9 +152,11 @@ if 'prediction' in st.session_state:
 st.markdown("---")
 st.subheader("💬 Ask Your Symptom MediCare Assistant Bot")
 
-# Initialize Chat History
+# Initialize Chat History and Name in Session State
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "user_name" not in st.session_state:
+    st.session_state.user_name = None
 
 # Display Chat History
 for message in st.session_state.messages:
@@ -168,21 +170,39 @@ if prompt := st.chat_input("Ask me about your diet or recovery tips..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # Check if a prediction exists in session state
-        if 'prediction' in st.session_state:
-            current_disease = st.session_state['prediction']
-            
-            # Biochemist Guardrail Logic
-            nutritional_keywords = ["eat", "drink", "food", "diet", "nutrition", "moringa", "pap", "water", "fruit", "recovery"]
-            
-            if any(word in prompt.lower() for word in nutritional_keywords):
-                response = f"Regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Recommendations' section above. I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
-            else:
-                # The "Redirect to Medical Workers" Fallback
-                response = "I am specialized only in nutritional recovery and biochemical health tips. For diagnosis, drug prescriptions, or more advanced medical knowledge, please consult your **medical workers** or use the 'Find Nearest Hospital' button."
-        else:
-            response = "Please complete the symptom selection and click 'Predict Disease' first so I can give you relevant advice."
+        p_low = prompt.lower()
         
+        # 1. Handle Greetings and Name Acquisition
+        if st.session_state.user_name is None:
+            if any(word in p_low for word in ["hello", "hi", "hey", "how far"]):
+                response = "Hello! I am your Symptom MediCare assistant. Before we dive into your health tips, **what is your name?**"
+            elif "name is" in p_low or "call me" in p_low:
+                # Simple logic to extract the last word as the name
+                name = prompt.split()[-1].strip("!?.")
+                st.session_state.user_name = name
+                response = f"Nice to meet you, **{name}**! How can I help you with your recovery or diet today?"
+            else:
+                response = "Hello! I'd love to help, but may I know **your name** first?"
+        
+        # 2. Handle Predictions and Nutritional Logic (Starting with the User's Name)
+        else:
+            user_name = st.session_state.user_name
+            
+            if 'prediction' in st.session_state:
+                current_disease = st.session_state['prediction']
+                
+                # Biochemist Guardrail Logic
+                nutritional_keywords = ["eat", "drink", "food", "diet", "nutrition", "moringa", "pap", "water", "fruit", "recovery", "better"]
+                
+                if any(word in p_low for word in nutritional_keywords):
+                    response = f"**{user_name}**, regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Recommendations' section above. I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
+                else:
+                    # The "Redirect to Medical Workers" Fallback
+                    response = f"**{user_name}**, I am specialized only in nutritional recovery and biochemical health tips. For diagnosis, drug prescriptions, or more advanced medical knowledge, please consult your **medical workers** or use the 'Find Nearest Hospital' button."
+            else:
+                response = f"**{user_name}**, please complete the symptom selection and click 'Predict Disease' first so I can give you relevant advice."
+        
+        # Display and Save the Response
         st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
