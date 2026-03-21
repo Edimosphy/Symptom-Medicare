@@ -177,39 +177,58 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 3. GET DYNAMIC CONTEXT
+        # 3. GET DYNAMIC CONTEXT
     current_pred = st.session_state.get('prediction', None)
     
-    # NEW: Check if the AI has already sent a message in this session
-    has_greeted = any(m["role"] == "assistant" for m in st.session_state.messages)
-
-    # 4. THE OMNI-INSTRUCTION (Fixed for intelligence)
+    # NEW: Logic to stop the AI from repeating "Hello" every time
+    # This checks if the assistant has already sent a message in this chat
+    already_greeted = any(m["role"] == "assistant" for m in st.session_state.messages)
+    
+    # 4. THE OMNI-INSTRUCTION (Step 4 - Intelligent Greeting)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
     User Name: {user_name if user_name else 'Guest'}.
     Current Prediction: {current_pred if current_pred else 'NONE'}.
 
     GREETING LOGIC:
-    - IF '{has_greeted}' is 'False', start with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
-    - IF '{has_greeted}' is 'True', DO NOT repeat the greeting. Just answer the question directly.
+    - IF '{already_greeted}' is 'False', YOU MUST START WITH: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - IF '{already_greeted}' is 'True', DO NOT repeat the formal greeting. Just answer the user's question directly.
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
-    - IF the user says 'I feel sick' AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+    - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
     
     KNOWLEDGE DOMAIN:
-    - Focus on biochemistry: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
-    - Suggest local alternatives (Garlic/Scent Leaf).
+    - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
+    - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
+    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
+    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     """
-    
 
+    # 5. Generate Response (Gemini 3 Step 5 - Your Working Format)
+    with st.chat_message("assistant"):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=sys_instr,
+                    thinking_config=types.ThinkingConfig(include_thoughts=True)
+                )
+            )
+            
+            if response and response.text:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.warning("The AI is connected but returned no text.")
+                
+        except Exception as e:
+            st.error(f"Gemini 3 Error: {e}")
 
-
-    
-    
 
 # --- Sidebar ---
 st.sidebar.header("About")
