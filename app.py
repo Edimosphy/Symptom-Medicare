@@ -25,6 +25,8 @@ st.markdown("""
 st.title("Symptom MediCare 🩺")
 st.markdown("Welcome to **Symptom MediCare**! This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** and provides biochemical nutritional guidance.")
 
+user_name = st.text_input("📝 What is your name?", placeholder="e.g., Edidiong")
+
 # --- Symptom Options & Dataset (Keep your existing data) ---
 symptom_option_mapping = {
     'Fever': ['High', 'Medium', 'Low'],
@@ -95,7 +97,7 @@ if 'prediction' in st.session_state:
     prediction = st.session_state['prediction']
     confidence = st.session_state['confidence']
     
-    st.success(f"🎯 Likely Condition: **{prediction}** ({confidence:.2f}%)")
+    st.success(f"🎯 Hello {user_name if user_name else 'Guest'}, your Likely Condition is: **{prediction}** ({confidence:.2f}%)")
     
     # --- The Two New Buttons ---
     col1, col2 = st.columns(2)
