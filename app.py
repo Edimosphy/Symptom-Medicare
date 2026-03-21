@@ -3,7 +3,6 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import google.generativeai as genai
 
 # --- Enforce Light UI Styling ---
 st.set_page_config(page_title="Symptom MediCare", layout="centered")
@@ -149,16 +148,20 @@ if 'prediction' in st.session_state:
     fig, ax = plt.subplots()
     sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
     st.pyplot(fig)
+    
 
 # --- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
 st.subheader("💬 Chat with Symptom MediCare Assistant")
 
-# 1. Setup Gemini
+from google import genai
+from google.genai import types
+
+# 1. Setup Gemini Client (Gemini 3 Version)
 try:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-except:
-    st.error("Missing API Key! Please check your secrets.toml file.")
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+except Exception as e:
+    st.error(f"Missing or Invalid API Key! Error: {e}")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -178,7 +181,7 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     # 3. GET DYNAMIC CONTEXT
     current_pred = st.session_state.get('prediction', None)
     
-    # 4. THE OMNI-INSTRUCTION
+    # 4. THE OMNI-INSTRUCTION (Step 4)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
     User Name: {user_name if user_name else 'Guest'}.
@@ -186,7 +189,7 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
     - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
     
     KNOWLEDGE DOMAIN:
     - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
@@ -196,33 +199,32 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
-    - GREETING: Always start your first response with: "Hello {user_name}, I am your Symptom MediCare Assistant."
+    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - GREETING: Always start your first response with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
     """
 
-    # --- STEP 5: Generate AI Response ---
-    with st.chat_message("assistant"):
-            # --- STEP 5: Generate AI Response (Corrected for your API Key) ---
+    # 5. Generate Response (Gemini 3 Step 5)
     with st.chat_message("assistant"):
         try:
-            # We use the full path to ensure the 404 error disappears
-            model = genai.GenerativeModel(
-                model_name='models/gemini-1.5-flash', 
-                system_instruction=sys_instr.strip()
+            # We use the GenerateContentConfig to pass the instructions and high thinking mode
+            response = client.models.generate_content(
+                model="gemini-3-flash-preview",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=sys_instr,
+                    thinking_config=types.ThinkingConfig(include_thoughts=True)
+                )
             )
-            
-            response = model.generate_content(prompt)
             
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("The model connected but didn't return text. Try asking 'How is Malaria transmitted?'")
+                st.warning("The AI is connected but returned no text.")
                 
         except Exception as e:
-            # This will catch if there is still a permission issue
-            st.error(f"AI Connection Error: {e}")
-
+            st.error(f"Gemini 3 Error: {e}")
+            st.info("Ensure you have 'google-genai' in your requirements.txt")
 
 
 #AI ends here. The bot is designed to provide safe, evidence-based nutritional advice while redirecting users to healthcare professionals for any medical concerns beyond its scope.    
