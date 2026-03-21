@@ -208,9 +208,10 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     """
 
-    # 5. Generate Response (YOUR EXACT WORKING FORMAT)
+    # 5. Generate Response (Gemini 3 Step 5)
     with st.chat_message("assistant"):
         try:
+            # We use the GenerateContentConfig to pass the instructions and high thinking mode
             response = client.models.generate_content(
                 model="gemini-3-flash-preview",
                 contents=prompt,
@@ -228,7 +229,7 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            
+            st.info("Ensure you have 'google-genai' in your requirements.txt")
 # --- Sidebar ---
 st.sidebar.header("About")
 st.sidebar.info("Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
