@@ -216,36 +216,29 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     """
 
-    # 5. Generate Response (Fixed Session Logic)
+
+    # 5. Generate Response (Gemini 3 Step 5)
     with st.chat_message("assistant"):
         try:
-            # Reconstruct history for the chat session
-            chat_history = [
-                types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
-                for m in st.session_state.messages[:-1]
-            ]
-
-            # Use the created client to start a chat
-            chat_session = client.chats.create(
+            # We use the GenerateContentConfig to pass the instructions and high thinking mode
+            response = client.models.generate_content(
                 model="gemini-3-flash-preview",
+                contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=sys_instr,
                     thinking_config=types.ThinkingConfig(include_thoughts=True)
-                ),
-                history=chat_history
+                )
             )
-            
-            response = chat_session.send_message(prompt)
             
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("AI connected but returned no text.")
+                st.warning("The AI is connected but returned no text.")
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            
+            st.info("Ensure you have 'google-genai' in your requirements.txt")
     
 
 
