@@ -200,12 +200,31 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - GREETING: Always start your first response with: "Hello {user_name}, I am your Symptom MediCare Assistant."
     """
 
-    # 5. Generate Response
+        # --- STEP 5: Generate AI Response ---
     with st.chat_message("assistant"):
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=sys_instr)
-        response = model.generate_content(prompt)
-        st.markdown(response.text)
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
+        try:
+            # Initialize the model with the 'Flash' version and your instructions
+            # .strip() removes hidden spaces that cause the "InvalidArgument" error
+            model = genai.GenerativeModel(
+                model_name='gemini-1.5-flash',
+                system_instruction=sys_instr.strip()
+            )
+            
+            # Send the user's message to Gemini
+            response = model.generate_content(prompt)
+            
+            # Display the response only if it contains text
+            if response and response.text:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.warning("I received your message but couldn't generate a text response. Please try again.")
+                
+        except Exception as e:
+            # If there is an error, this shows exactly what went wrong in red text
+            st.error(f"AI Connection Error: {e}")
+            st.info("Check your API Key in Streamlit Secrets.")
+
 
 
 #AI ends here. The bot is designed to provide safe, evidence-based nutritional advice while redirecting users to healthcare professionals for any medical concerns beyond its scope.    
