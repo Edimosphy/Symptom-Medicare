@@ -149,7 +149,6 @@ if 'prediction' in st.session_state:
     sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
     st.pyplot(fig)
 
-
 # --- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
 st.subheader("💬 Chat with Symptom MediCare Assistant")
@@ -157,7 +156,7 @@ st.subheader("💬 Chat with Symptom MediCare Assistant")
 from google import genai
 from google.genai import types
 
-# 1. Setup Gemini Client (Gemini 3 Version)
+# 1. Setup Gemini Client
 try:
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception as e:
@@ -181,62 +180,68 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     # 3. GET DYNAMIC CONTEXT
     current_pred = st.session_state.get('prediction', None)
     
-    # 4. THE OMNI-INSTRUCTION (Step 4)
+    # Check if this is the FIRST assistant message to handle greeting
+    is_first_message = len(st.session_state.messages) <= 1
+
+    # 4. THE OMNI-INSTRUCTION (Step 4 - Corrected for Repetition)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
     User Name: {user_name if user_name else 'Guest'}.
     Current Prediction: {current_pred if current_pred else 'NONE'}.
 
+    GREETING LOGIC:
+    - IF this is the first message: Always start with "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - IF this is a follow-up question (history exists): DO NOT repeat the formal greeting. Just answer the question directly.
+
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
-    - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
+    - IF the user says 'I feel sick' AND Prediction is 'NONE', 
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
     
     KNOWLEDGE DOMAIN:
     - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
     - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
-    - MEDICAL TERMINOLOGY & DEFINITION: Define or explain related terms for easy understanding as it related to these diseases.
+    - MEDICAL TERMINOLOGY: Define terms as they relate to these diseases.
     - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
-    - GREETING: Always start your first response with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - Greeting status: {'New Conversation' if is_first_message else 'Ongoing Discussion'}.
     """
 
-    # 5. Generate Response (Gemini 3 Step 5)
+    # 5. Generate Response (Intelligent History)
     with st.chat_message("assistant"):
         try:
-            # We use the GenerateContentConfig to pass the instructions and high thinking mode
-            response = client.models.generate_content(
+            # We convert our session_state messages into the format Gemini expects
+            history_data = [
+                types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
+                for m in st.session_state.messages[:-1] # Exclude the current prompt
+            ]
+
+            # Use start_chat to give the AI a "memory"
+            chat = client.models.start_chat(
                 model="gemini-3-flash-preview",
-                contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=sys_instr,
                     thinking_config=types.ThinkingConfig(include_thoughts=True)
-                )
+                ),
+                history=history_data
             )
+            
+            response = chat.send_message(prompt)
             
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("The AI is connected but returned no text.")
+                st.warning("The AI returned no text.")
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            st.info("Ensure you have 'google-genai' in your requirements.txt")
-
-# --- Sidebar ---
-st.sidebar.header("About")
-st.sidebar.info(f"Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
-        
+            
 
 
-    
-
-         
-
-
+ 
 # --- Sidebar ---
 st.sidebar.header("About")
 st.sidebar.info("Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
