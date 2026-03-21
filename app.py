@@ -156,19 +156,11 @@ st.subheader("💬 Chat with Symptom MediCare Assistant")
 from google import genai
 from google.genai import types
 
-# 1. Setup Gemini Client with Stripped API Key
+# 1. Setup Gemini Client (Gemini 3 Version)
 try:
-    # We pull the key and immediately .strip() any hidden spaces/newlines
-    raw_key = st.secrets.get("GEMINI_API_KEY", "")
-    clean_key = raw_key.strip() 
-    
-    if not clean_key:
-        st.error("API Key is missing or empty in Streamlit Secrets.")
-        st.stop()
-        
-    client = genai.Client(api_key=clean_key)
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception as e:
-    st.error(f"Client Initialization Error: {e}")
+    st.error(f"Missing or Invalid API Key! Error: {e}")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -186,67 +178,38 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
         st.markdown(prompt)
 
     # 3. GET DYNAMIC CONTEXT
-    current_pred = st.session_state.get('prediction', 'NONE')
-    active_name = st.session_state.get('user_name', 'Guest')
+    current_pred = st.session_state.get('prediction', None)
     
-    # 4. THE OMNI-INSTRUCTION
+    # NEW: Check if the AI has already sent a message in this session
+    has_greeted = any(m["role"] == "assistant" for m in st.session_state.messages)
+
+    # 4. THE OMNI-INSTRUCTION (Fixed for intelligence)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
-    User Name: {active_name}.
-    Current Prediction: {current_pred}.
+    User Name: {user_name if user_name else 'Guest'}.
+    Current Prediction: {current_pred if current_pred else 'NONE'}.
 
     GREETING LOGIC:
-    - Only greet "Hello {active_name}" if this is the very first message in the history.
-    - Otherwise, answer the question directly.
-    
+    - IF '{has_greeted}' is 'False', start with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - IF '{has_greeted}' is 'True', DO NOT repeat the greeting. Just answer the question directly.
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
     - IF the user says 'I feel sick' AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
     
     KNOWLEDGE DOMAIN:
-    - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
-    - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
-    - MEDICAL TERMINOLOGY: Define terms as they relate to these diseases.
-    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
-
+    - Focus on biochemistry: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
+    - Suggest local alternatives (Garlic/Scent Leaf).
 
     STRICT GUARDRAILS:
-    - NEVER prescribe drugs. Focus on biochemical nutritional support (e.g., Scent Leaf, Ginger).
-    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - NEVER prescribe drugs or dosages. 
     """
-
-    # 5. Generate Response
-    with st.chat_message("assistant"):
-        try:
-            # Rebuild history for the session
-            history_list = [
-                types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
-                for m in st.session_state.messages[:-1]
-            ]
-
-            # Start the session using the sanitized client
-            chat_session = client.chats.create(
-                model="gemini-3-flash-preview",
-                config=types.GenerateContentConfig(
-                    system_instruction=sys_instr,
-                    thinking_config=types.ThinkingConfig(include_thoughts=True)
-                ),
-                history=history_list
-            )
-            
-            response = chat_session.send_message(prompt)
-            
-            if response and response.text:
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-            else:
-                st.warning("Connected but no text returned.")
-                
-        except Exception as e:
-            st.error(f"Gemini 3 Error: {e}")
     
 
+
+
+    
+    
 
 # --- Sidebar ---
 st.sidebar.header("About")
