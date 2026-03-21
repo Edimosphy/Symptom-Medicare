@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import google.generativeai as genai
 
 # --- Enforce Light UI Styling ---
 st.set_page_config(page_title="Symptom MediCare", layout="centered")
@@ -147,64 +148,63 @@ if 'prediction' in st.session_state:
     sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
     st.pyplot(fig)
 
-# --- AI Bot Section (Guardrailed) ---
-# This section is intentionally left out to avoid any potential issues with AI-generated content. The focus is on providing accurate, evidence-based recommendations without the risk of misinformation.
+# --- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
-st.subheader("💬 Ask Your Symptom MediCare Assistant Bot")
+st.subheader("💬 Chat with Symptom MediCare Assistant")
 
-# Initialize Chat History and Name in Session State
+# 1. Setup Gemini
+try:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+except:
+    st.error("Missing API Key! Please check your secrets.toml file.")
+    st.stop()
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "user_name" not in st.session_state:
-    st.session_state.user_name = None
 
 # Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Chat Logic
-if prompt := st.chat_input("Ask me about your diet or recovery tips..."):
+# 2. Capture Input
+if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # 3. GET DYNAMIC CONTEXT
+    current_pred = st.session_state.get('prediction', None)
+    
+    # 4. THE OMNI-INSTRUCTION
+    sys_instr = f"""
+    You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
+    User Name: {user_name if user_name else 'Guest'}.
+    Current Prediction: {current_pred if current_pred else 'NONE'}.
+
+    CRITICAL LOGIC (THE SICKNESS TRIGGER):
+    - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
+    
+    KNOWLEDGE DOMAIN:
+    - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
+    - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
+    - MEDICAL TERMINOLOGY & DEFINITION: Define or explain related terms for easy understanding as it related to these diseases.
+    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
+
+    STRICT GUARDRAILS:
+    - NEVER prescribe drugs or dosages. 
+    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - GREETING: Always start your first response with: "Hello {user_name}, I am your Symptom MediCare Assistant."
+    """
+
+    # 5. Generate Response
     with st.chat_message("assistant"):
-        p_low = prompt.lower()
-        
-        # 1. Handle Greetings and Name Acquisition
-        if st.session_state.user_name is None:
-            if any(word in p_low for word in ["hello", "hi", "hey", "how far"]):
-                response = "Hello! I am your Symptom MediCare assistant. Before we dive into your health tips, **what is your name?**"
-            elif "name is" in p_low or "call me" in p_low:
-                # Simple logic to extract the last word as the name
-                name = prompt.split()[-1].strip("!?.")
-                st.session_state.user_name = name
-                response = f"Nice to meet you, **{name}**! How can I help you with your recovery or diet today?"
-            else:
-                response = "Hello! I'd love to help, but may I know **your name** first?"
-        
-        # 2. Handle Predictions and Nutritional Logic (Starting with the User's Name)
-        else:
-            user_name = st.session_state.user_name
-            
-            if 'prediction' in st.session_state:
-                current_disease = st.session_state['prediction']
-                
-                # Biochemist Guardrail Logic
-                nutritional_keywords = ["eat", "drink", "food", "diet", "nutrition", "moringa", "pap", "water", "fruit", "recovery", "better"]
-                
-                if any(word in p_low for word in nutritional_keywords):
-                    response = f"**{user_name}**, regarding **{current_disease}**, you should follow the natural diet tips listed in the 'Recommendations' section above. I recommend focusing on locally sourced antioxidants to help your body clear the infection naturally alongside your clinical treatment."
-                else:
-                    # The "Redirect to Medical Workers" Fallback
-                    response = f"**{user_name}**, I am specialized only in nutritional recovery and biochemical health tips. For diagnosis, drug prescriptions, or more advanced medical knowledge, please consult your **medical workers** or use the 'Find Nearest Hospital' button."
-            else:
-                response = f"**{user_name}**, please complete the symptom selection and click 'Predict Disease' first so I can give you relevant advice."
-        
-        # Display and Save the Response
-        st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=sys_instr)
+        response = model.generate_content(prompt)
+        st.markdown(response.text)
+        st.session_state.messages.append({"role": "assistant", "content": response.text})
+
 
 #AI ends here. The bot is designed to provide safe, evidence-based nutritional advice while redirecting users to healthcare professionals for any medical concerns beyond its scope.    
 
