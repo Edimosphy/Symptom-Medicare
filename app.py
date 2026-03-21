@@ -156,17 +156,19 @@ st.subheader("💬 Chat with Symptom MediCare Assistant")
 from google import genai
 from google.genai import types
 
-# 1. Setup Gemini Client - ENSURE NO SPACES IN YOUR SECRETS
+# 1. Setup Gemini Client with Stripped API Key
 try:
-    # Use .get() to avoid KeyErrors and check if it's actually pulling the string
-    api_key_val = st.secrets.get("GEMINI_API_KEY")
-    if not api_key_val:
-        st.error("API Key not found in Streamlit Secrets.")
-        st.stop()
+    # We pull the key and immediately .strip() any hidden spaces/newlines
+    raw_key = st.secrets.get("GEMINI_API_KEY", "")
+    clean_key = raw_key.strip() 
     
-    client = genai.Client(api_key=api_key_val)
+    if not clean_key:
+        st.error("API Key is missing or empty in Streamlit Secrets.")
+        st.stop()
+        
+    client = genai.Client(api_key=clean_key)
 except Exception as e:
-    st.error(f"Client Setup Error: {e}")
+    st.error(f"Client Initialization Error: {e}")
     st.stop()
 
 if "messages" not in st.session_state:
@@ -187,9 +189,6 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     current_pred = st.session_state.get('prediction', 'NONE')
     active_name = st.session_state.get('user_name', 'Guest')
     
-    # Logic to prevent greeting repetition
-    is_first_msg = len(st.session_state.messages) <= 1
-
     # 4. THE OMNI-INSTRUCTION
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
@@ -197,8 +196,9 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     Current Prediction: {current_pred}.
 
     GREETING LOGIC:
-    - IF first message: Start with "Hello {active_name}, I am your Symptom MediCare Assistant."
-    - ELSE: Answer directly without repeating the greeting.
+    - Only greet "Hello {active_name}" if this is the very first message in the history.
+    - Otherwise, answer the question directly.
+    
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
     - IF the user says 'I feel sick' AND Prediction is 'NONE', 
@@ -216,29 +216,35 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     """
 
-
-    # 5. Generate Response (Gemini 3 Step 5)
+    # 5. Generate Response
     with st.chat_message("assistant"):
         try:
-            # We use the GenerateContentConfig to pass the instructions and high thinking mode
-            response = client.models.generate_content(
+            # Rebuild history for the session
+            history_list = [
+                types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
+                for m in st.session_state.messages[:-1]
+            ]
+
+            # Start the session using the sanitized client
+            chat_session = client.chats.create(
                 model="gemini-3-flash-preview",
-                contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=sys_instr,
                     thinking_config=types.ThinkingConfig(include_thoughts=True)
-                )
+                ),
+                history=history_list
             )
+            
+            response = chat_session.send_message(prompt)
             
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("The AI is connected but returned no text.")
+                st.warning("Connected but no text returned.")
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            st.info("Ensure you have 'google-genai' in your requirements.txt")
     
 
 
