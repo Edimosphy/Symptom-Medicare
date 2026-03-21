@@ -203,10 +203,13 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
     - MEDICAL TERMINOLOGY & DEFINITION: Define or explain related terms for easy understanding as it related to these diseases.
     - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
+    - If asked any other disesases apart from malaria, typhoid and HIV/AIDS, give a general knowledge and healthy tips and refer them for checkup as you are into malaria, typhoid and HIV/AIDS"
+    
+    
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - If asked for meds or drug request, advice them against self medication as it leads to antimicrobial resistance, you can also say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     """
 
     # 5. Generate Response (Gemini 3 Step 5)
