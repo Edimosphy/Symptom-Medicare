@@ -3,8 +3,6 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from google import genai
-from google.genai import types
 
 # --- Enforce Light UI Styling ---
 st.set_page_config(page_title="Symptom MediCare", layout="centered")
@@ -150,13 +148,16 @@ if 'prediction' in st.session_state:
     fig, ax = plt.subplots()
     sns.barplot(x=list(st.session_state['probs'].keys()), y=list(st.session_state['probs'].values()), palette='coolwarm', ax=ax)
     st.pyplot(fig)
-    
 
- # -- AI Bot Section (Symptom MediCare Assistant) ---
+
+# --- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
 st.subheader("💬 Chat with Symptom MediCare Assistant")
 
-# Setup Gemini Client
+from google import genai
+from google.genai import types
+
+# 1. Setup Gemini Client (Gemini 3 Version)
 try:
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 except Exception as e:
@@ -166,36 +167,46 @@ except Exception as e:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Ask about your results..."):
-    # 1. We define the variables ONLY when the user types a message
-    current_pred = st.session_state.get('prediction', 'NONE')
-    active_name = st.session_state.get('user_name', 'Guest')
+# 2. Capture Input
+if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # 3. GET DYNAMIC CONTEXT
+    current_pred = st.session_state.get('prediction', None)
     
+    # 4. THE OMNI-INSTRUCTION (Step 4)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
-    User Name: {active_name}.
-    Current Prediction: {current_pred}.
-
-    IDENTITY LOGIC:
-    - IF User Name is 'Guest', your FIRST response MUST ask: "May I know your name?"
-    - IF User Name is '{active_name}' (not Guest), start with: "Hello {active_name}, I am your Symptom MediCare Assistant."
+    User Name: {user_name if user_name else 'Guest'}.
+    Current Prediction: {current_pred if current_pred else 'NONE'}.
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
-    - IF the user says 'I feel sick' AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {active_name}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+    - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
+      YOU MUST RESPOND: "I'm sorry you feel ill, {user_name if user_name else 'Guest'}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first. I need your data before I can suggest recovery plan for you."
     
+    KNOWLEDGE DOMAIN:
+    - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
+    - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
+    - MEDICAL TERMINOLOGY & DEFINITION: Define or explain related terms for easy understanding as it related to these diseases.
+    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
+
     STRICT GUARDRAILS:
-    - NEVER prescribe drugs. 
-    - Suggest local alternatives like Garlic or Scent Leaf for nutrition.
-    - If asked for meds, say: "I am specialized only in nutritional recommendations, {active_name}. For prescriptions, please consult medical workers or click 'Find Nearest Hospital' after prediction."
+    - NEVER prescribe drugs or dosages. 
+    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - GREETING: Always start your first response with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
     """
 
+    # 5. Generate Response (Gemini 3 Step 5)
     with st.chat_message("assistant"):
         try:
+            # We use the GenerateContentConfig to pass the instructions and high thinking mode
             response = client.models.generate_content(
                 model="gemini-3-flash-preview",
                 contents=prompt,
@@ -204,12 +215,26 @@ if prompt := st.chat_input("Ask about your results..."):
                     thinking_config=types.ThinkingConfig(include_thoughts=True)
                 )
             )
+            
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
+            else:
+                st.warning("The AI is connected but returned no text.")
+                
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
+            st.info("Ensure you have 'google-genai' in your requirements.txt")
 
+# --- Sidebar ---
+st.sidebar.header("About")
+st.sidebar.info(f"Created by: Edidiong Moses. \nAim: Reducing antimicrobial resistance through smarter diagnosis.")
+        
+
+
+    
+
+         
 
 
 # --- Sidebar ---
