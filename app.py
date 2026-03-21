@@ -225,26 +225,58 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - GREETING: Always start your first response with: "Hello {active_name}, I am your Symptom MediCare Assistant."
     """
 
-    # 5. Generate Response (Gemini 3 Step 5 - Corrected alignment)
+    # --- 5. Generate Response (Gemini 3 Step 5) ---
+if prompt := st.chat_input("Ask me about precautions or biology..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
     with st.chat_message("assistant"):
         try:
-            response = client.models.generate_content(
-                model="gemini-3-flash-preview",
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=sys_instr,
-                    thinking_config=types.ThinkingConfig(include_thoughts=True)
-                )
+            # Initialize the client inside the block to ensure it uses the secret
+            client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+
+            # Pulling your session data into the prompt
+            current_pred = st.session_state.get('prediction', 'NONE')
+            active_name = st.session_state.get('user_name', 'Guest')
+
+            # Build the contents using your EXACT requested structure
+            contents = [
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_text(text=f"User: {active_name}. Condition: {current_pred}. Question: {prompt}"),
+                    ],
+                ),
+            ]
+
+            # Your exact thinking configuration
+            generate_content_config = types.GenerateContentConfig(
+                system_instruction=sys_instr, # This pulls the sys_instr we defined in Step 4
+                thinking_config=types.ThinkingConfig(
+                    include_thoughts=True, # This activates the 'HIGH' thinking level
+                ),
             )
+
+            # Execution using your requested streaming method
+            full_response = ""
+            message_placeholder = st.empty()
+
+            for chunk in client.models.generate_content_stream(
+                model="gemini-3-flash-preview",
+                contents=contents,
+                config=generate_content_config,
+            ):
+                full_response += chunk.text
+                message_placeholder.markdown(full_response + "▌")
             
-            if response and response.text:
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
-            else:
-                st.warning("The AI is connected but returned no text.")
+            message_placeholder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
+            st.info("Ensure you have 'google-genai' in your requirements.txt")
+    
 
 # --- Sidebar ---
 st.sidebar.header("About")
