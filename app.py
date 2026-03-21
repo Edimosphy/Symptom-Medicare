@@ -245,7 +245,7 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            st.info("Check for hidden spaces in your Streamlit Secrets 'GEMINI_API_KEY'.")
+            
     
 
 
