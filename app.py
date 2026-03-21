@@ -205,7 +205,7 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
+    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     - Greeting status: {'New Conversation' if is_first_message else 'Ongoing Discussion'}.
     """
 
