@@ -157,42 +157,45 @@ st.subheader("💬 Chat with Symptom MediCare Assistant")
 from google import genai
 from google.genai import types
 
-# 1. Setup Gemini Client (Gemini 3 Version)
-try:
-    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-except Exception as e:
-    st.error(f"Missing or Invalid API Key! Error: {e}")
-    st.stop()
+# --- 1. Define the Save Function ---
+def save_name():
+    # This manually forces the name into the session memory
+    st.session_state['user_name'] = st.session_state['name_widget']
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# --- 2. Create the Input with a Callback ---
+st.title("Symptom MediCare 🩺")
 
-# Display Chat History
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# We use 'key' to identify the widget and 'on_change' to trigger the save
+user_name = st.text_input(
+    "📝 What is your name?", 
+    placeholder="e.g., Edidiong", 
+    key="name_widget", 
+    on_change=save_name
+)
 
-# 2. Capture Input
-if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+# Initial check for 'Guest' status
+if 'user_name' not in st.session_state:
+    st.session_state['user_name'] = "Guest"
+
+# Use the saved name for the rest of the app
+active_name = st.session_state['user_name']
+
 
     # 3. GET DYNAMIC CONTEXT
     current_pred = st.session_state.get('prediction', None)
     
-    # 4. THE OMNI-INSTRUCTION (With Dynamic Name Logic)
-    current_user = st.session_state.get('user_name_input', 'Guest')
+    # 4. THE OMNI-INSTRUCTION
+    # Always pull the most recent name from our 'active_name' variable
     current_pred = st.session_state.get('prediction', 'NONE')
-
+    
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
-    
+    User Name: {active_name}.
+    Current Prediction: {current_pred}.
+
     IDENTITY LOGIC:
-    - IF User Name is 'Guest': 
-      Your first response MUST be: "Hello! I am your Symptom MediCare Assistant. Before we proceed, may I know your name so I can address you properly?"
-    - IF User Name is NOT 'Guest': 
-      Your first response MUST be: "Hello {current_user}, I am your Symptom MediCare Assistant. How can I help you with your health data today?"
+    - IF User Name is 'Guest', your FIRST response MUST ask: "May I know your name?"
+    - IF User Name is '{active_name}', start with: "Hello {active_name}, I am your Symptom MediCare Assistant."
 
     CRITICAL LOGIC (DATA-FIRST POLICY):
     - IF the user says 'I feel sick' OR describes symptoms AND Prediction is 'NONE', 
