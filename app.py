@@ -200,30 +200,28 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - GREETING: Always start your first response with: "Hello {user_name}, I am your Symptom MediCare Assistant."
     """
 
-        # --- STEP 5: Generate AI Response ---
+    # --- STEP 5: Generate AI Response ---
+    with st.chat_message("assistant"):
+            # --- STEP 5: Generate AI Response (Corrected for your API Key) ---
     with st.chat_message("assistant"):
         try:
-            # Initialize the model with the 'Flash' version and your instructions
-            # .strip() removes hidden spaces that cause the "InvalidArgument" error
+            # We use the full path to ensure the 404 error disappears
             model = genai.GenerativeModel(
-                model_name='gemini-1.5-flash',
+                model_name='models/gemini-1.5-flash', 
                 system_instruction=sys_instr.strip()
             )
             
-            # Send the user's message to Gemini
             response = model.generate_content(prompt)
             
-            # Display the response only if it contains text
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("I received your message but couldn't generate a text response. Please try again.")
+                st.warning("The model connected but didn't return text. Try asking 'How is Malaria transmitted?'")
                 
         except Exception as e:
-            # If there is an error, this shows exactly what went wrong in red text
+            # This will catch if there is still a permission issue
             st.error(f"AI Connection Error: {e}")
-            st.info("Check your API Key in Streamlit Secrets.")
 
 
 
