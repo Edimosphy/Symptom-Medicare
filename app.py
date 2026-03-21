@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from google import genai
+from google.genai import types
 
 # --- Enforce Light UI Styling ---
 st.set_page_config(page_title="Symptom MediCare", layout="centered")
@@ -150,31 +152,31 @@ if 'prediction' in st.session_state:
     st.pyplot(fig)
     
 
-    # --- AI Bot Section (Symptom MediCare Assistant) ---
+ # -- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
 st.subheader("💬 Chat with Symptom MediCare Assistant")
 
-from google import genai
-from google.genai import types
+# Setup Gemini Client
+try:
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+except Exception as e:
+    st.error(f"Missing or Invalid API Key! Error: {e}")
+    st.stop()
 
-# 1. Initialize message history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 2. Display existing history
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-# 3. THE ONLY CHAT INPUT (No more double box)
-if prompt := st.chat_input("Ask about your results..."):
+if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # --- THE LOGIC & RESTRICTIONS ---
+    # Dynamic Context
     current_pred = st.session_state.get('prediction', 'NONE')
-    active_name = st.session_state.get('user_name', 'Guest')
     
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
@@ -183,52 +185,34 @@ if prompt := st.chat_input("Ask about your results..."):
 
     IDENTITY LOGIC:
     - IF User Name is 'Guest', your FIRST response MUST ask: "May I know your name?"
-    - IF User Name is '{active_name}', start with: "Hello {active_name}, I am your Symptom MediCare Assistant."
+    - IF User Name is '{active_name}' (not Guest), start with: "Hello {active_name}, I am your Symptom MediCare Assistant."
 
-    CRITICAL LOGIC (DATA-FIRST POLICY):
-    - IF the user says 'I feel sick' OR describes symptoms AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {active_name}. To give you the right recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+    CRITICAL LOGIC (THE SICKNESS TRIGGER):
+    - IF the user says 'I feel sick' AND Prediction is 'NONE', 
+      YOU MUST RESPOND: "I'm sorry you feel ill, {active_name}. To give you the right medical recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
     
     STRICT GUARDRAILS:
-    - NEVER prescribe drugs or dosages. 
-    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
-    - GREETING: Always start your first response with: "Hello {active_name}, I am your Symptom MediCare Assistant."
+    - NEVER prescribe drugs. 
+    - Suggest local alternatives like Garlic or Scent Leaf for nutrition.
+    - If asked for meds, say: "I am specialized only in nutritional recommendations, {active_name}. For prescriptions, please consult medical workers or click 'Find Nearest Hospital' after prediction."
     """
 
-    # 4. Use your EXACT Client & Thinking Logic
-    try:
-        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-        
-        contents = [
-            types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=prompt)],
-            ),
-        ]
-
-        generate_config = types.GenerateContentConfig(
-            system_instruction=sys_instr, # This enforces your RESTRICTIONS
-            thinking_config=types.ThinkingConfig(include_thoughts=True),
-        )
-
-        with st.chat_message("assistant"):
-            response_text = ""
-            placeholder = st.empty()
-            
-            # Streaming results
-            for chunk in client.models.generate_content_stream(
+    with st.chat_message("assistant"):
+        try:
+            response = client.models.generate_content(
                 model="gemini-3-flash-preview",
-                contents=contents,
-                config=generate_config,
-            ):
-                response_text += chunk.text
-                placeholder.markdown(response_text + "▌")
-            
-            placeholder.markdown(response_text)
-            st.session_state.messages.append({"role": "assistant", "content": response_text})
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=sys_instr,
+                    thinking_config=types.ThinkingConfig(include_thoughts=True)
+                )
+            )
+            if response and response.text:
+                st.markdown(response.text)
+                st.session_state.messages.append({"role": "assistant", "content": response.text})
+        except Exception as e:
+            st.error(f"Gemini 3 Error: {e}")
 
-    except Exception as e:
-        st.error(f"Gemini 3 Error: {e}")
 
 
 # --- Sidebar ---
