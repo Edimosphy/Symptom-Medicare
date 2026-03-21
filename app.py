@@ -181,8 +181,10 @@ if 'user_name' not in st.session_state:
 active_name = st.session_state['user_name']
 
 
-    # 3. GET DYNAMIC CONTEXT
-    current_pred = st.session_state.get('prediction', None)
+# --- STEP 3: DYNAMIC CONTEXT RETRIEVAL ---
+# Make sure there are NO extra spaces at the start of these lines!
+current_pred = st.session_state.get('prediction', 'NONE')
+active_name = st.session_state.get('user_name', 'Guest')
     
     # 4. THE OMNI-INSTRUCTION
     # Always pull the most recent name from our 'active_name' variable
