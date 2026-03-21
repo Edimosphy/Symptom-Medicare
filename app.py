@@ -209,38 +209,33 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - Greeting status: {'New Conversation' if is_first_message else 'Ongoing Discussion'}.
     """
 
-    # 5. Generate Response (Intelligent History)
+    # 5. Generate Response (Fixed for Gemini 3 SDK)
     with st.chat_message("assistant"):
         try:
-            # We convert our session_state messages into the format Gemini expects
-            history_data = [
-                types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
-                for m in st.session_state.messages[:-1] # Exclude the current prompt
-            ]
-
-            # Use start_chat to give the AI a "memory"
-            chat = client.models.start_chat(
+            # CORRECT SYNTAX: client.chats.create
+            chat_session = client.chats.create(
                 model="gemini-3-flash-preview",
                 config=types.GenerateContentConfig(
                     system_instruction=sys_instr,
                     thinking_config=types.ThinkingConfig(include_thoughts=True)
                 ),
-                history=history_data
+                history=[
+                    types.Content(role=m["role"], parts=[types.Part.from_text(text=m["content"])])
+                    for m in st.session_state.messages[:-1]
+                ]
             )
             
-            response = chat.send_message(prompt)
+            # Send the new prompt to the session
+            response = chat_session.send_message(prompt)
             
             if response and response.text:
                 st.markdown(response.text)
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
             else:
-                st.warning("The AI returned no text.")
+                st.warning("No response text found.")
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            
-
-
  
 # --- Sidebar ---
 st.sidebar.header("About")
