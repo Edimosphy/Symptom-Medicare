@@ -82,7 +82,7 @@ with st.form("symptom_form"):
     cols = st.columns(2)
     for i, (symptom, options) in enumerate(symptom_option_mapping.items()):
         with cols[i % 2]:
-            user_symptoms[symptom] = st.selectbox(f"{symptom}", options, key=symptom)
+            user_symptoms[symptom] = st.selectbox(f"{symptom}", options, key=f"symptom_{symptom}")
     submitted = st.form_submit_button("🧪 Predict Disease")
 
 # --- Logic After Prediction ---
@@ -157,39 +157,49 @@ st.subheader("💬 Chat with Symptom MediCare Assistant")
 from google import genai
 from google.genai import types
 
+# Initialize client outside the loop
+try:
+    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"], http_options={'api_version': 'v1beta'})
+except Exception as e:
+    st.error(f"AI Client Error: {e}")
+
 # --- 1. Define the Save Function ---
 def save_name():
-    # This manually forces the name into the session memory
     st.session_state['user_name'] = st.session_state['name_widget']
 
-# --- 2. Create the Input with a Callback ---
-st.title("Symptom MediCare 🩺")
+# Initialize check for 'Guest' status
+if 'user_name' not in st.session_state:
+    st.session_state['user_name'] = "Guest"
 
-# We use 'key' to identify the widget and 'on_change' to trigger the save
-user_name = st.text_input(
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
+
+# --- 2. Create the Input with a Callback ---
+# We keep this part exactly as you wrote it
+user_name_input = st.text_input(
     "📝 What is your name?", 
     placeholder="e.g., Edidiong", 
     key="name_widget", 
     on_change=save_name
 )
 
-# Initial check for 'Guest' status
-if 'user_name' not in st.session_state:
-    st.session_state['user_name'] = "Guest"
-
-# Use the saved name for the rest of the app
 active_name = st.session_state['user_name']
 
+# Display chat history
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-# --- STEP 3: DYNAMIC CONTEXT RETRIEVAL ---
-# Make sure there are NO extra spaces at the start of these lines!
-current_pred = st.session_state.get('prediction', 'NONE')
-active_name = st.session_state.get('user_name', 'Guest')
-    
-    # 4. THE OMNI-INSTRUCTION
-    # Always pull the most recent name from our 'active_name' variable
+# --- AI Logic Execution ---
+if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # --- STEP 3: DYNAMIC CONTEXT RETRIEVAL ---
     current_pred = st.session_state.get('prediction', 'NONE')
     
+    # 4. THE OMNI-INSTRUCTION (Corrected alignment)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
     User Name: {active_name}.
@@ -201,23 +211,23 @@ active_name = st.session_state.get('user_name', 'Guest')
 
     CRITICAL LOGIC (DATA-FIRST POLICY):
     - IF the user says 'I feel sick' OR describes symptoms AND Prediction is 'NONE', 
-      YOU MUST RESPOND: "I'm sorry you feel ill, {current_user}. To give you the right recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+      YOU MUST RESPOND: "I'm sorry you feel ill, {active_name}. To give you the right recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
+    
     KNOWLEDGE DOMAIN:
     - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
     - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
-    - MEDICAL TERMINOLOGY & DEFINITION: Define or explain related terms for easy understanding as it related to these diseases.
-    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf if Ginger is unavailable).
+    - MEDICAL TERMINOLOGY: Define related terms for easy understanding.
+    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf).
 
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds or drug request, say: "I am specialized only in nutritional recommendations and healthy tips, {user_name if user_name else 'Guest'}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
-    - GREETING: Always start your first response with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers. or click on 'Find Nearest Hospital'."
+    - GREETING: Always start your first response with: "Hello {active_name}, I am your Symptom MediCare Assistant."
     """
 
-    # 5. Generate Response (Gemini 3 Step 5)
+    # 5. Generate Response (Gemini 3 Step 5 - Corrected alignment)
     with st.chat_message("assistant"):
         try:
-            # We use the GenerateContentConfig to pass the instructions and high thinking mode
             response = client.models.generate_content(
                 model="gemini-3-flash-preview",
                 contents=prompt,
@@ -235,10 +245,6 @@ active_name = st.session_state.get('user_name', 'Guest')
                 
         except Exception as e:
             st.error(f"Gemini 3 Error: {e}")
-            st.info("Ensure you have 'google-genai' in your requirements.txt")
-
-
-#AI ends here. The bot is designed to provide safe, evidence-based nutritional advice while redirecting users to healthcare professionals for any medical concerns beyond its scope.    
 
 # --- Sidebar ---
 st.sidebar.header("About")
