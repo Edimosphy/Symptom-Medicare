@@ -24,7 +24,7 @@ st.markdown("""
 st.title("Symptom MediCare 🩺")
 st.markdown("Welcome to **Symptom MediCare**! This tool predicts the likelihood of **Malaria**, **Typhoid**, or **HIV/AIDS** and provides biochemical nutritional guidance.")
 
-user_name = st.text_input("📝 What is your name?", placeholder="e.g., Edidiong")
+user_name = st.text_input("📝 What is your name?", placeholder="e.g., First Name, Edimosphy")
 
 # --- Symptom Options & Dataset (Keep your existing data) ---
 symptom_option_mapping = {
