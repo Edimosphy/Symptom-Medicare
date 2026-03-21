@@ -190,9 +190,9 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     User Name: {user_name if user_name else 'Guest'}.
     Current Prediction: {current_pred if current_pred else 'NONE'}.
 
-    GREETING LOGIC:
-    - IF '{has_spoken}' is 'False', you MUST start your response with: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
-    - IF '{has_spoken}' is 'True', skip the greeting and answer the user's question directly.
+    GREETING RULE:
+    - If this is the start of the chat, say: "Hello {user_name if user_name else 'Guest'}, I am your Symptom MediCare Assistant."
+    - If you have already greeted the user or are answering a follow-up (like 'Thank you'), DO NOT introduce yourself again. Just respond naturally.
 
     CRITICAL LOGIC (THE SICKNESS TRIGGER):
     - IF the user says 'I feel sick', 'I am ill', or 'I don't feel well' AND Prediction is 'NONE', 
