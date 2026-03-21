@@ -150,56 +150,32 @@ if 'prediction' in st.session_state:
     st.pyplot(fig)
     
 
-# --- AI Bot Section (Symptom MediCare Assistant) ---
+    # --- AI Bot Section (Symptom MediCare Assistant) ---
 st.markdown("---")
 st.subheader("💬 Chat with Symptom MediCare Assistant")
 
 from google import genai
 from google.genai import types
 
-# Initialize client outside the loop
-try:
-    client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"], http_options={'api_version': 'v1beta'})
-except Exception as e:
-    st.error(f"AI Client Error: {e}")
-
-# --- 1. Define the Save Function ---
-def save_name():
-    st.session_state['user_name'] = st.session_state['name_widget']
-
-# Initialize check for 'Guest' status
-if 'user_name' not in st.session_state:
-    st.session_state['user_name'] = "Guest"
-
-if 'messages' not in st.session_state:
+# 1. Initialize message history
+if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- 2. Create the Input with a Callback ---
-# We keep this part exactly as you wrote it
-user_name_input = st.text_input(
-    "📝 What is your name?", 
-    placeholder="e.g., Edidiong", 
-    key="name_widget", 
-    on_change=save_name
-)
-
-active_name = st.session_state['user_name']
-
-# Display chat history
+# 2. Display existing history
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# --- AI Logic Execution ---
-if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
+# 3. THE ONLY CHAT INPUT (No more double box)
+if prompt := st.chat_input("Ask about your results..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # --- STEP 3: DYNAMIC CONTEXT RETRIEVAL ---
+    # --- THE LOGIC & RESTRICTIONS ---
     current_pred = st.session_state.get('prediction', 'NONE')
+    active_name = st.session_state.get('user_name', 'Guest')
     
-    # 4. THE OMNI-INSTRUCTION (Corrected alignment)
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
     User Name: {active_name}.
@@ -213,70 +189,47 @@ if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
     - IF the user says 'I feel sick' OR describes symptoms AND Prediction is 'NONE', 
       YOU MUST RESPOND: "I'm sorry you feel ill, {active_name}. To give you the right recommendation, please fill out the Symptom Selection form above and click 'Predict' first."
     
-    KNOWLEDGE DOMAIN:
-    - PREVENTIVE CARE: Advise on Treated Nets (Malaria), Boiling Water (Typhoid), and Protection/Safe practices (HIV).
-    - BIOLOGY & BIOCHEMISTRY: Explain the liver stage of Malaria and CD4+ T-cell attack in HIV.
-    - MEDICAL TERMINOLOGY: Define related terms for easy understanding.
-    - SUBSTITUTIONS: Suggest local alternative (Garlic/Scent Leaf).
-
     STRICT GUARDRAILS:
     - NEVER prescribe drugs or dosages. 
-    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers. or click on 'Find Nearest Hospital'."
+    - If asked for meds, say: "I am specialized only in nutritional recommendations and healthy tips, {active_name}. For prescriptions, please consult your medical workers or click 'Find Nearest Hospital'."
     - GREETING: Always start your first response with: "Hello {active_name}, I am your Symptom MediCare Assistant."
     """
 
-    # --- 5. Generate Response (Gemini 3 Step 5) ---
-if prompt := st.chat_input("Ask me about precautions or biology..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    # 4. Use your EXACT Client & Thinking Logic
+    try:
+        client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+        
+        contents = [
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=prompt)],
+            ),
+        ]
 
-    with st.chat_message("assistant"):
-        try:
-            # Initialize the client inside the block to ensure it uses the secret
-            client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+        generate_config = types.GenerateContentConfig(
+            system_instruction=sys_instr, # This enforces your RESTRICTIONS
+            thinking_config=types.ThinkingConfig(include_thoughts=True),
+        )
 
-            # Pulling your session data into the prompt
-            current_pred = st.session_state.get('prediction', 'NONE')
-            active_name = st.session_state.get('user_name', 'Guest')
-
-            # Build the contents using your EXACT requested structure
-            contents = [
-                types.Content(
-                    role="user",
-                    parts=[
-                        types.Part.from_text(text=f"User: {active_name}. Condition: {current_pred}. Question: {prompt}"),
-                    ],
-                ),
-            ]
-
-            # Your exact thinking configuration
-            generate_content_config = types.GenerateContentConfig(
-                system_instruction=sys_instr, # This pulls the sys_instr we defined in Step 4
-                thinking_config=types.ThinkingConfig(
-                    include_thoughts=True, # This activates the 'HIGH' thinking level
-                ),
-            )
-
-            # Execution using your requested streaming method
-            full_response = ""
-            message_placeholder = st.empty()
-
+        with st.chat_message("assistant"):
+            response_text = ""
+            placeholder = st.empty()
+            
+            # Streaming results
             for chunk in client.models.generate_content_stream(
                 model="gemini-3-flash-preview",
                 contents=contents,
-                config=generate_content_config,
+                config=generate_config,
             ):
-                full_response += chunk.text
-                message_placeholder.markdown(full_response + "▌")
+                response_text += chunk.text
+                placeholder.markdown(response_text + "▌")
             
-            message_placeholder.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-                
-        except Exception as e:
-            st.error(f"Gemini 3 Error: {e}")
-            st.info("Ensure you have 'google-genai' in your requirements.txt")
-    
+            placeholder.markdown(response_text)
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+    except Exception as e:
+        st.error(f"Gemini 3 Error: {e}")
+
 
 # --- Sidebar ---
 st.sidebar.header("About")
