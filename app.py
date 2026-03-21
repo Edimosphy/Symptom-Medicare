@@ -170,13 +170,10 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if prompt := st.chat_input("Ask about recovery, biology, or precautions..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # Dynamic Context
+if prompt := st.chat_input("Ask about your results..."):
+    # 1. We define the variables ONLY when the user types a message
     current_pred = st.session_state.get('prediction', 'NONE')
+    active_name = st.session_state.get('user_name', 'Guest')
     
     sys_instr = f"""
     You are the 'Symptom MediCare Assistant', a professional Nigerian Health Professional.
