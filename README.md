@@ -22,7 +22,7 @@ Self-medication is a primary driver of Antimicrobial Resistance (AMR). When drug
 1. Predict: Enter your name, physical symptoms to predict the likely condition (Malaria, Typhoid, or HIV/AIDS).
 2. Recover: Access a tailored nutritional and recovery plan based on the prediction results.
 3. Locate: Click the 'Find Nearest Hospital' button to instantly map out the closest healthcare facilities via Google Maps.
-4.Support: Use the Symptom Medicare Assistant Bot for real-time health guidance and to answer any medical inquiries.
+4. Support: Use the Symptom Medicare Assistant Bot for real-time health guidance and to answer any medical inquiries.
 
 ## Result
 ### 📊 Result Output
