@@ -42,13 +42,13 @@ The API Keys for the AI is added in the Streamlit secret.
 
 Here is the link of the app **https://symptom-medicare.streamlit.app/**
 
-##🛠️ Tech Stack
+## 🛠️ Tech Stack
 - Language: Python
 - Framework: Streamlit
 - API: Gemini API (Assistant Bot) / Google Maps API
 - Data Science: Scikit-learn / Pandas (for prediction modeling)
 
-##🛠️ Technical Challenges & Solutions
+## 🛠️ Technical Challenges & Solutions
 1. Seamless Gemini API Integration
 Challenge: Ensuring the Symptom Medicare Assistant Bot provided medically grounded responses while maintaining a conversational tone.
 Solution: Implemented custom system prompting (Prompt Engineering) to restrict the model’s scope to health informatics and recovery guidance, ensuring every response includes a clinical disclaimer.
