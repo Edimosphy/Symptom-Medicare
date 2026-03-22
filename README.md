@@ -37,8 +37,8 @@ After submitting your symptoms, the app shows:
 ![Screenshot_20260322-070505](https://github.com/user-attachments/assets/f3c64b69-2460-44f0-96f3-d80b39b2dc9f)
 
 ## APP Deployment
-This health simulated demo app is depolyed on Streamlit
-The API Keys for the AIis added in the Streamlit secret 
+This health simulated demo app is depolyed on Streamlit.
+The API Keys for the AI is added in the Streamlit secret.
 
 Here is the link of the app **https://symptom-medicare.streamlit.app/**
 
@@ -68,8 +68,9 @@ Solution: Optimized the data flow by using a structured symptom-mapping dictiona
 ## 📬 Feedback
 Suggestions or improvements? Reach out or open an issue on the GitHub repo.
 
-## Collaboration
-Contact via email - edimosphy@gmail.com
-
 ## Disclaimer
 This is not a replacement to medical treatment, diagnosis and test but to aid in medical diagnosis, research, treatment and education.
+
+- Contact via email: edimosphy@gmail.com
+- For social: Check my profile
+
