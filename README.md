@@ -1,56 +1,69 @@
-# 3MTT KNOWLEDGE SHOWCASE MAY 2025
 
 # Symptom MediCare
 ## Project Overview -Symptom Medicare
-This health-simulated demo project aims to tackle critical health challenges in World especially in Nigeria by providing a smarter way to diagnose diseases based on physical symptoms. It seeks to reduce misdiagnosis and the inappropriate use of antimalarial and antibiotic drugs by the public. By guiding healthcare workers toward more accurate assessments, it will ultimately lead to the earlier detection and diagnosis of diseases, ensuring patients receive the right treatment at the right time.
+This health-simulated demo application addresses the critical public health crisis of self-medication and Antimicrobial Resistance (AMR) in Nigeria.
+​By providing early prediction for Malaria, Typhoid, and HIV/AIDS, Symptom Medicare empowers users to seek clinical testing before starting drug regimens, preventing germs (bacteria, viruses, and parasites) from causing harms or conplicate health.
 
-## Problems that project aim to address:
+## The Science & The "Why"
+Self-medication is a primary driver of Antimicrobial Resistance (AMR). When drugs are used improperly, pathogens evolve to withstand treatment. Symptom Medicare acts as a digital triage system that:
+1. Reduces the reliance on "symptom guesswork."
+2. Promotes clinical testing through active hospital mapping.
+3. Educates users on the long-term impact of health decisions.
 
-#### Symptom MediCare is designed to:
-1. Reduce Misdiagnosis: By guiding healthcare workers toward more accurate assessments especially in the rural areas where there is inadequate medical facilities 
-2. Prevent Drug Misuse: Ensuring people use the right medicine for the right illness, reducing inappropriate use of important drugs.
-3. Enable Early Detection: Leading to earlier diagnosis, so patients receive the right treatment at the right time.
+"Stay healthy while getting your desired dream and purpose through building wealth for your better today, tomorrow, and future."
 
-## Project Features:
-1. Built using Streamlit, Pandas, Matplotlib, Seaborn and probabilistic approaches called Naive Bayes.
-2.  Visualizes probability distribution using bar chart
-3.   Fully interactive UI with dropdown selectors
-4.   Styled with a clean and emoji cues
-##### Key Feature: Bar chart to visually show the probability distribution of the likely diseases. This would helps healthcare workers see not just one possible diagnosis, but the relative chances of different illnesses, aiding their decision-making.
-##### For this demo, we're focusing on Nigeria's most common diseases: Malaria, Typhoid, and HIV/AIDS with ten(10) similar physical symptoms
+## Project Key Features:
+1. ​Disease Prediction Engine: Uses machine learning to analyze physical symptoms and predict the likelihood of specific disease conditions.
+2. ​Nutritional Recovery Plans: Provides data-driven healthy lifestyle and nutritional tips tailored to the predicted condition.
+3. ​Geospatial Hospital Locator: Integrated with Google Maps API to help users find the nearest clinical facility for formal diagnosis.
+4. ​AI Support Bot: A conversational assistant built to answer health-related inquiries and provide clinical guidance.
 
-## How it Works:
-1. The app uses a Naive Bayes classifier trained on a small simulated dataset.
-2. Users select symptoms such as Fever level, Fatigue, Vomiting, and more.
-3. The algorithm then computes the most likely disease and based on the provided symptoms and calculates the probabilities of all the targeted diseases.
+## How it Works (4 Simple Steps): 
+1. Predict: Enter your name, physical symptoms to predict the likely condition (Malaria, Typhoid, or HIV/AIDS).
+2. Recover: Access a tailored nutritional and recovery plan based on the prediction results.
+3. Locate: Click the 'Find Nearest Hospital' button to instantly map out the closest healthcare facilities via Google Maps.
+4.Support: Use the Symptom Medicare Assistant Bot for real-time health guidance and to answer any medical inquiries.
 
 ## Result
 ### 📊 Result Output
-
 After submitting your symptoms, the app shows:
 - The most likely disease
-- ![image](https://github.com/user-attachments/assets/71546846-ecc0-44fb-a9db-ffe9ad4419a9)
-![image](https://github.com/user-attachments/assets/6747052f-9ce6-4aa1-8560-391d1c5e44dc)
-- A probability chart comparing likelihoods for all diseases
+-![Screenshot_20260322-070240](https://github.com/user-attachments/assets/798b7121-46c5-4ad9-a1fa-314fb680f4eb)
+![Screenshot_20260322-070353](https://github.com/user-attachments/assets/b9c2ceae-399c-4339-b112-b68310896021)
+![Screenshot_20260322-070407](https://github.com/user-attachments/assets/e0b8108d-e6b5-431d-b781-e9e0ad0d8f63)
+![Screenshot_20260322-070426](https://github.com/user-attachments/assets/283bf657-b16d-4ac8-890e-844a2636ded9)
 
-
-
+- You can also use the assistant without running a prediction
+![Screenshot_20260322-070505](https://github.com/user-attachments/assets/f3c64b69-2460-44f0-96f3-d80b39b2dc9f)
 
 ## APP Deployment
-This health simulated demo app will be depolyed on Streamlit
+This health simulated demo app is depolyed on Streamlit
+The API Keys for the AIis added in the Streamlit secret 
+
 Here is the link of the app **https://symptom-medicare.streamlit.app/**
 
-## Colab notelink Access
-Here is the link to the colab notebook
-**https://drive.google.com/file/d/15r-74U5zewzjW2R44bnvnvohixSh6CIM/view?usp=sharing**
+##🛠️ Tech Stack
+- Language: Python
+- Framework: Streamlit
+- API: Gemini API (Assistant Bot) / Google Maps API
+- Data Science: Scikit-learn / Pandas (for prediction modeling)
+
+##🛠️ Technical Challenges & Solutions
+1. Seamless Gemini API Integration
+Challenge: Ensuring the Symptom Medicare Assistant Bot provided medically grounded responses while maintaining a conversational tone.
+Solution: Implemented custom system prompting (Prompt Engineering) to restrict the model’s scope to health informatics and recovery guidance, ensuring every response includes a clinical disclaimer.
+2. Real-Time Geospatial Mapping
+Challenge: Transitioning users from a prediction result to an external action (finding a hospital) without breaking the user experience.
+Solution: Leveraged the Google Maps URL API to dynamically generate location-based search queries. When a user clicks 'Find Nearest Hospital,' the app automatically triggers a localized search for "Hospitals near me" based on their current browser coordinates.
+3. Streamlining the Prediction Logic
+Challenge: Building a lightweight, fast-loading prediction engine within the Streamlit framework that handles multiple symptom inputs.
+Solution: Optimized the data flow by using a structured symptom-mapping dictionary. This allows the model to process physical symptoms rapidly, providing an instant prediction without the lag often associated with cloud-based AI.
 
 ## Future plan, Innovation and Collaboration:
 1. Advanced Machine Learning to build an even more robust AI model.
 2. Introduce databases where vital user information like age, gender, and location can be securely stored. This data will be valuable for medical research and crucial for tracking disease outbreaks across Nigeria and the World at large
+3. Introduce other diseases that are of global concern and have similar symptoms.
 
-
-## Challenges
-1. Limited Health database and medical resources for the Model training
 
 ## 📬 Feedback
 Suggestions or improvements? Reach out or open an issue on the GitHub repo.
